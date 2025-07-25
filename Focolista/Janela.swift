@@ -44,7 +44,7 @@ struct Janela: View {
           }
         }
       }
-    }
+    }.frame(width: 300, height: 250)
   }
 
   private func mover(de origem: IndexSet, para destino: Int) {
