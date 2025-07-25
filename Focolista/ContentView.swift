@@ -18,58 +18,56 @@ struct ConteudoPrincipal: View {
     
     @State private var selecao = Set<UUID>()
     @State private var tituloJanela: String = "Focolista"
+    @State private var edicoes = Set<UUID>()
 
     var body: some View {
-            NavigationStack {
-                List(selection: $selecao) {
-                    ForEach(tarefas) { tarefa in
-                        HStack {
-                            Toggle(isOn: binding(para: tarefa)) {
-                                Text(tarefa.titulo)
+        NavigationStack {
+            List(selection: $selecao) {
+                ForEach(tarefas) { tarefa in
+                    LinhaTarefaView(
+                        tarefa: tarefa,
+                        emEdicao: edicoes.contains(tarefa.id),
+                        toggleConcluida: {
+                            if let index = tarefas.firstIndex(of: tarefa) {
+                                tarefas[index].concluida.toggle()
                             }
-                            .toggleStyle(.checkbox)
-                            .labelsHidden()
-                            
-                            Text(tarefa.titulo)
-                            
-                            Spacer()
-                            
-                            Button(action: {
-                                tituloJanela = tarefa.titulo
-                            }) {
-                                Image(systemName: "chevron.right")
+                        },
+                        alterarTitulo: { novoTitulo in
+                            if let index = tarefas.firstIndex(of: tarefa) {
+                                tarefas[index].titulo = novoTitulo
                             }
-                            .buttonStyle(.borderless)
+                        },
+                        aoClicarBotao: {
+                            tituloJanela = tarefa.titulo
+                        },
+                        aoIniciarEdicao: {
+                            edicoes.insert(tarefa.id)
+                        },
+                        aoTerminarEdicao: {
+                            edicoes.remove(tarefa.id)
                         }
-                        .padding(.vertical, 4)
-                    }
-                    .onMove(perform: mover)
+                    )
                 }
-                .listStyle(.inset)
+                .onMove(perform: mover)
             }
-            .navigationTitle(tituloJanela)
-            .toolbar {
-                ToolbarItem(placement: .navigation) {
-                    Button {
-                        tituloJanela = "Focolista"
-                    } label: {
-                        Image(systemName: "chevron.left")
-                    }
+            .listStyle(.inset)
+        }
+        .navigationTitle(tituloJanela)
+        .toolbar {
+            ToolbarItem(placement: .navigation) {
+                Button {
+                    tituloJanela = "Focolista"
+                } label: {
+                    Image(systemName: "chevron.left")
                 }
             }
-            .frame(minWidth: 400, minHeight: 300)
         }
-
-        private func mover(de origem: IndexSet, para destino: Int) {
-            tarefas.move(fromOffsets: origem, toOffset: destino)
-        }
-
-        private func binding(para tarefa: Tarefa) -> Binding<Bool> {
-            guard let indice = tarefas.firstIndex(of: tarefa) else {
-                return .constant(tarefa.concluida)
-            }
-            return $tarefas[indice].concluida
-        }
+        .frame(minWidth: 400, minHeight: 300)
+    }
+    
+    private func mover(de origem: IndexSet, para destino: Int) {
+        tarefas.move(fromOffsets: origem, toOffset: destino)
+    }
 }
 
 #Preview {
