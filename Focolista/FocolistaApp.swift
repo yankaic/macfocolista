@@ -2,7 +2,7 @@
 //  FocolistaApp.swift
 //  Focolista
 //
-//  Created by Yan Kaic on 24/07/25.
+//  Created by Yan Kaic on 20/07/25.
 //
 
 import SwiftUI
@@ -11,7 +11,7 @@ import SwiftUI
 struct FocolistaApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ConteudoPrincipal()
         }
     }
 }
