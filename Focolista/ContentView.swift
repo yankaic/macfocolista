@@ -17,45 +17,66 @@ struct ConteudoPrincipal: View {
     ]
     
     @State private var selecao = Set<UUID>()
+    @State private var tituloJanela: String = "Focolista"
 
     var body: some View {
-        List(selection: $selecao) {
-            ForEach(tarefas) { tarefa in
-                HStack {
-                    Toggle(isOn: binding(para: tarefa)) {
-                        Text(tarefa.titulo)
+            NavigationSplitView {
+                List(selection: $selecao) {
+                    ForEach(tarefas) { tarefa in
+                        HStack {
+                            Toggle(isOn: binding(para: tarefa)) {
+                                Text(tarefa.titulo)
+                            }
+                            .toggleStyle(.checkbox)
+                            .labelsHidden()
+                            
+                            Text(tarefa.titulo)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                tituloJanela = tarefa.titulo
+                            }) {
+                                Image(systemName: "chevron.right")
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                        .padding(.vertical, 4)
                     }
-                    .toggleStyle(.checkbox)
-                    .labelsHidden()
-                    
-                    Text(tarefa.titulo)
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        // Ação do botão ">"
-                    }) {
-                        Image(systemName: "chevron.right")
-                    }
-                    .buttonStyle(.borderless)
+                    .onMove(perform: mover)
                 }
-                .padding(.vertical, 4)
+                .listStyle(.inset)
+            } detail: {
+                Text("Conteúdo detalhado aqui")
             }
-            .onMove(perform: mover)
+            .navigationTitle(tituloJanela)
+            .toolbar {
+                ToolbarItem(placement: .navigation) {
+                    Button {
+                        tituloJanela = "Focolista"
+                    } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                }
+                
+                ToolbarItem(placement: .principal) {
+                    Text(tituloJanela)
+                        .font(.headline)
+                }
+            }
+            .frame(minWidth: 400, minHeight: 300)
         }
-        .listStyle(.inset)
-    }
 
-    private func mover(de origem: IndexSet, para destino: Int) {
-        tarefas.move(fromOffsets: origem, toOffset: destino)
-    }
-
-    private func binding(para tarefa: Tarefa) -> Binding<Bool> {
-        guard let indice = tarefas.firstIndex(of: tarefa) else {
-            return .constant(tarefa.concluida)
+        private func mover(de origem: IndexSet, para destino: Int) {
+            tarefas.move(fromOffsets: origem, toOffset: destino)
         }
-        return $tarefas[indice].concluida
-    }
+
+        private func binding(para tarefa: Tarefa) -> Binding<Bool> {
+            guard let indice = tarefas.firstIndex(of: tarefa) else {
+                return .constant(tarefa.concluida)
+            }
+            return $tarefas[indice].concluida
+        }
 }
 
 #Preview {
