@@ -20,7 +20,7 @@ struct ConteudoPrincipal: View {
     @State private var tituloJanela: String = "Focolista"
 
     var body: some View {
-            NavigationSplitView {
+            NavigationStack {
                 List(selection: $selecao) {
                     ForEach(tarefas) { tarefa in
                         HStack {
@@ -46,8 +46,6 @@ struct ConteudoPrincipal: View {
                     .onMove(perform: mover)
                 }
                 .listStyle(.inset)
-            } detail: {
-                Text("Conteúdo detalhado aqui")
             }
             .navigationTitle(tituloJanela)
             .toolbar {
@@ -57,11 +55,6 @@ struct ConteudoPrincipal: View {
                     } label: {
                         Image(systemName: "chevron.left")
                     }
-                }
-                
-                ToolbarItem(placement: .principal) {
-                    Text(tituloJanela)
-                        .font(.headline)
                 }
             }
             .frame(minWidth: 400, minHeight: 300)
