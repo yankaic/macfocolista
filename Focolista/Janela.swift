@@ -18,21 +18,25 @@ struct Janela: View {
 
   @State private var selecao = Set<UUID>()
   @State private var tituloJanela: String = "Focolista"
+  @State private var descricao: String = "Descricao"
 
   var body: some View {
     NavigationStack {
-      List(selection: $selecao) {
-        ForEach($subtarefas) { $subtarefa in
-          SubtarefaView(
-            onEnterSubtask: {
-              self.tituloJanela = subtarefa.titulo
-            }, tarefa: $subtarefa
-          )
+        VStack (spacing: 0){
+            NotesEditor(text: $descricao)
+            List(selection: $selecao) {
+              ForEach($subtarefas) { $subtarefa in
+                SubtarefaView(
+                  onEnterSubtask: {
+                    self.tituloJanela = subtarefa.titulo
+                  }, tarefa: $subtarefa
+                )
 
+              }
+              .onMove(perform: mover)
+            }
         }
-        .onMove(perform: mover)
-      }
-      .listStyle(.inset)
+        //.background(.white)
       .navigationTitle(tituloJanela)
       .toolbar {
         ToolbarItem(placement: .navigation) {
@@ -44,7 +48,7 @@ struct Janela: View {
           }
         }
       }
-    }.frame(width: 300, height: 250)
+    }
   }
 
   private func mover(de origem: IndexSet, para destino: Int) {
