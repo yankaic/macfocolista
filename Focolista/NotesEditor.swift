@@ -33,7 +33,7 @@ struct NotesEditor: View {
                 .padding(.horizontal, 10)
                 .padding(.top, 15)
         }
-        .background(.white)
+        .background(Color.init(NSColor.controlBackgroundColor))
     }
 }
 

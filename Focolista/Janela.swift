@@ -9,11 +9,12 @@ import SwiftUI
 
 struct Janela: View {
   @State private var subtarefas: [Tarefa] = [
-    Tarefa(titulo: "Tarefas para hoje", concluida: false),
-    Tarefa(titulo: "Projetos", concluida: false),
-    Tarefa(titulo: "Capacitação", concluida: true),
-    Tarefa(titulo: "Chamados", concluida: false),
-    Tarefa(titulo: "Estudar SwiftUI", concluida: false),
+    Tarefa(titulo: "Lista de subtarefas", concluida: true),
+    Tarefa(titulo: "Reordenação de subtarefa", concluida: true),
+    Tarefa(titulo: "Botão de voltar", concluida: true),
+    Tarefa(titulo: "Campo de descrição", concluida: true),
+    Tarefa(titulo: "Campo de entrada de nova tarefa", concluida: false),
+    Tarefa(titulo: "Dica de descrição", concluida: false),
   ]
 
   @State private var selecao = Set<UUID>()
