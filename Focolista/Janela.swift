@@ -35,7 +35,7 @@ struct Janela: View {
                 self.tituloJanela = subtarefa.titulo
               },
               onFinishEdit: {
-                  print("Passando por aqui")
+                  selecao = [subtarefa.id]
               },
               tarefa: $subtarefa
             )
@@ -46,7 +46,8 @@ struct Janela: View {
           Button {
             let nova = Tarefa(titulo: "Nova tarefa", concluida: false)
             subtarefas.append(nova)
-            tarefaEmEdicao = nova.id 
+            selecao = []
+            tarefaEmEdicao = nova.id
           } label: {
             Label("Adicionar tarefa", systemImage: "plus")
               .foregroundColor(.accentColor)
