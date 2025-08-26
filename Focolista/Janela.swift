@@ -23,28 +23,28 @@ struct Janela: View {
 
   var body: some View {
     NavigationStack {
-        VStack (spacing: 0){
-            NotesEditor(text: $descricao)
-            List(selection: $selecao) {
-              ForEach($subtarefas) { $subtarefa in
-                SubtarefaView(
-                  onEnterSubtask: {
-                    self.tituloJanela = subtarefa.titulo
-                  }, tarefa: $subtarefa
-                )
-              }
-              .onMove(perform: mover)
-                Button {
-                    print("Botão 'Adicionar Tarefa' foi apertado")
-                } label: {
-                    Label("Adicionar tarefa", systemImage: "plus")
-                        .foregroundColor(.accentColor)
-                }
-                .buttonStyle(.plain)
-                .padding(.top, 8)
-            }
+      VStack(spacing: 0) {
+        NotesEditor(text: $descricao)
+        List(selection: $selecao) {
+          ForEach($subtarefas) { $subtarefa in
+            SubtarefaView(
+              onEnterSubtask: {
+                self.tituloJanela = subtarefa.titulo
+              }, tarefa: $subtarefa
+            )
+          }
+          .onMove(perform: mover)
+          Button {
+            print("Botão 'Adicionar Tarefa' foi apertado")
+          } label: {
+            Label("Adicionar tarefa", systemImage: "plus")
+              .foregroundColor(.accentColor)
+          }
+          .buttonStyle(.plain)
+          .padding(.top, 8)
         }
-        //.background(.white)
+      }
+      //.background(.white)
       .navigationTitle(tituloJanela)
       .toolbar {
         ToolbarItem(placement: .navigation) {
