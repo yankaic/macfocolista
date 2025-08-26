@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SubtarefaView: View {
   var onEnterSubtask: () -> Void
+  var onFinishEdit: () -> Void
   @Binding var tarefa: Tarefa
   @State private var titulo: String = ""
 
@@ -22,6 +23,7 @@ struct SubtarefaView: View {
         "Título da tarefa", text: $titulo,
         onCommit: {
           tarefa.titulo = titulo
+            onFinishEdit()
         }
       )
       .textFieldStyle(.plain)

@@ -33,14 +33,18 @@ struct Janela: View {
             SubtarefaView(
               onEnterSubtask: {
                 self.tituloJanela = subtarefa.titulo
-              }, tarefa: $subtarefa
+              },
+              onFinishEdit: {
+                  print("Passando por aqui")
+              },
+              tarefa: $subtarefa
             )
             .focused($tarefaEmEdicao, equals: subtarefa.id)
           }
           .onMove(perform: mover)
 
           Button {
-            let nova = Tarefa(titulo: "nova tarefa", concluida: false)
+            let nova = Tarefa(titulo: "Nova tarefa", concluida: false)
             subtarefas.append(nova)
             tarefaEmEdicao = nova.id 
           } label: {
