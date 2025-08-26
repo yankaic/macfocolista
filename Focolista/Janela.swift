@@ -32,9 +32,16 @@ struct Janela: View {
                     self.tituloJanela = subtarefa.titulo
                   }, tarefa: $subtarefa
                 )
-
               }
               .onMove(perform: mover)
+                Button {
+                    print("Botão 'Adicionar Tarefa' foi apertado")
+                } label: {
+                    Label("Adicionar tarefa", systemImage: "plus")
+                        .foregroundColor(.accentColor)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 8)
             }
         }
         //.background(.white)
