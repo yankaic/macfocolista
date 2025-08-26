@@ -21,6 +21,9 @@ struct Janela: View {
   @State private var tituloJanela: String = "Focolista"
   @State private var descricao: String = "Descricao"
 
+  // Foco: guarda o ID da tarefa que deve estar em edição
+  @FocusState private var tarefaEmEdicao: UUID?
+
   var body: some View {
     NavigationStack {
       VStack(spacing: 0) {
@@ -32,10 +35,14 @@ struct Janela: View {
                 self.tituloJanela = subtarefa.titulo
               }, tarefa: $subtarefa
             )
+            .focused($tarefaEmEdicao, equals: subtarefa.id)
           }
           .onMove(perform: mover)
+
           Button {
-            print("Botão 'Adicionar Tarefa' foi apertado")
+            let nova = Tarefa(titulo: "nova tarefa", concluida: false)
+            subtarefas.append(nova)
+            tarefaEmEdicao = nova.id 
           } label: {
             Label("Adicionar tarefa", systemImage: "plus")
               .foregroundColor(.accentColor)
