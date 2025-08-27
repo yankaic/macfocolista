@@ -1,13 +1,12 @@
-
 import SwiftUI
 
 struct NotesEditor: View {
     @Binding var text: String
-    @State private var dynamicHeight: CGFloat = 0  // altura inicial estimada para uma linha
+    @State private var dynamicHeight: CGFloat = 0  // initial estimated height for a single line
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            // Medidor invisível de altura
+            // Invisible height measurer
             Text(text)
                 .foregroundColor(.clear)
                 .padding(.horizontal, 18)
@@ -23,7 +22,7 @@ struct NotesEditor: View {
                     }
                 )
 
-            // Editor de texto visível
+            // Visible text editor
             TextEditor(text: $text)
                 .font(.body)
                 .opacity(0.65)
@@ -33,7 +32,6 @@ struct NotesEditor: View {
                 .padding(.horizontal, 10)
                 .padding(.top, 15)
         }
-        .background(Color.init(NSColor.controlBackgroundColor))
+        .background(Color(NSColor.controlBackgroundColor))
     }
 }
-

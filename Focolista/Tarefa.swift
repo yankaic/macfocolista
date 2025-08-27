@@ -8,8 +8,7 @@ import Foundation
 
 struct Tarefa: Identifiable, Hashable {
     let id = UUID()
-    var titulo: String
-    var concluida: Bool
-    var emEdicao: Bool = false // ← NOVO: controla se a tarefa está sendo editada
+    var title: String
+    var isCompleted: Bool
 
 }

@@ -1,5 +1,5 @@
 //
-//  Janela.swift
+//  WindowView.swift
 //  Focolista
 //
 //  Created by Yan Kaic on 20/07/25.
@@ -7,65 +7,64 @@
 
 import SwiftUI
 
-struct Janela: View {
-  @State private var subtarefas: [Tarefa] = [
-    Tarefa(titulo: "Lista de subtarefas", concluida: true),
-    Tarefa(titulo: "Reordenação de subtarefa", concluida: true),
-    Tarefa(titulo: "Botão de voltar", concluida: true),
-    Tarefa(titulo: "Campo de descrição", concluida: true),
-    Tarefa(titulo: "Campo de entrada de nova tarefa", concluida: false),
-    Tarefa(titulo: "Dica de descrição", concluida: false),
+struct WindowView: View {
+  @State private var subtasks: [Task] = [
+    Task(title: "Subtask list", isCompleted: true),
+    Task(title: "Subtask reordering", isCompleted: true),
+    Task(title: "Back button", isCompleted: true),
+    Task(title: "Description field", isCompleted: true),
+    Task(title: "New task input field", isCompleted: false),
+    Task(title: "Description hint", isCompleted: false),
   ]
   
-  @State private var selecao = Set<UUID>()
-  @State private var tituloJanela: String = "Focolista"
-  @State private var descricao: String = "Descricao"
+  @State private var selection = Set<UUID>()
+  @State private var windowTitle: String = "Focolista"
+  @State private var description: String = "Description"
   
-  // Foco: guarda o ID da tarefa que deve estar em edição
-  @FocusState private var tarefaEmEdicao: UUID?
+  // Focus: keeps track of the task currently being edited
+  @FocusState private var editingTask: UUID?
   
   var body: some View {
     NavigationStack {
       VStack(spacing: 0) {
-        NotesEditor(text: $descricao)
-        List(selection: $selecao) {
-          ForEach($subtarefas) { $subtarefa in
-            SubtarefaView(
+        NotesEditor(text: $description)
+        List(selection: $selection) {
+          ForEach($subtasks) { $subtask in
+            SubtaskView(
               onEnterSubtask: {
-                self.tituloJanela = subtarefa.titulo
+                self.windowTitle = subtask.title
               },
               onFinishEdit: {
-                selecao = [subtarefa.id]
+                selection = [subtask.id]
               },
               onStartEdit: {
-                selecao = []
+                selection = []
               },
-              tarefa: $subtarefa
+              task: $subtask
             )
-            .focused($tarefaEmEdicao, equals: subtarefa.id)
+            .focused($editingTask, equals: subtask.id)
           }
-          .onMove(perform: mover)
+          .onMove(perform: move)
           
           Button {
-            let nova = Tarefa(titulo: "Nova tarefa", concluida: false)
-            subtarefas.append(nova)
-            selecao = []
-            tarefaEmEdicao = nova.id
+            let newTask = Task(title: "New task", isCompleted: false)
+            subtasks.append(newTask)
+            selection = []
+            editingTask = newTask.id
           } label: {
-            Label("Adicionar tarefa", systemImage: "plus")
+            Label("Add task", systemImage: "plus")
               .foregroundColor(.accentColor)
           }
           .buttonStyle(.plain)
           .padding(.top, 8)
         }
       }
-      //.background(.white)
-      .navigationTitle(tituloJanela)
+      .navigationTitle(windowTitle)
       .toolbar {
         ToolbarItem(placement: .navigation) {
           Button {
-            //ação do botão voltar
-            self.tituloJanela = "Focolista"
+            // back button action
+            self.windowTitle = "Focolista"
           } label: {
             Image(systemName: "chevron.left")
           }
@@ -74,11 +73,11 @@ struct Janela: View {
     }
   }
   
-  private func mover(de origem: IndexSet, para destino: Int) {
-    subtarefas.move(fromOffsets: origem, toOffset: destino)
+  private func move(from source: IndexSet, to destination: Int) {
+    subtasks.move(fromOffsets: source, toOffset: destination)
   }
 }
 
 #Preview {
-  Janela()
+  WindowView()
 }
