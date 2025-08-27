@@ -17,7 +17,7 @@ struct NotesEditor: View {
                             .onAppear {
                                 dynamicHeight = geometry.size.height
                             }
-                            .onChange(of: text){ _ in
+                            .onChange(of: text) {
                                 dynamicHeight = geometry.size.height
                             }
                     }
