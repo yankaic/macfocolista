@@ -10,6 +10,7 @@ import SwiftUI
 struct SubtarefaView: View {
   var onEnterSubtask: () -> Void
   var onFinishEdit: () -> Void
+  var onStartEdit: () -> Void
   @Binding var tarefa: Tarefa
   @State private var titulo: String = ""
   @FocusState private var isFocused: Bool
@@ -29,7 +30,10 @@ struct SubtarefaView: View {
         }
         .focused($isFocused)
         .onChange(of: isFocused) {
-          if (!isFocused) {
+          if (isFocused) {
+           onStartEdit()
+          }
+          else {
             titulo = tarefa.titulo
           }
         }

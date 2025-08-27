@@ -37,6 +37,9 @@ struct Janela: View {
               onFinishEdit: {
                 selecao = [subtarefa.id]
               },
+              onStartEdit: {
+                selecao = []
+              },
               tarefa: $subtarefa
             )
             .focused($tarefaEmEdicao, equals: subtarefa.id)
