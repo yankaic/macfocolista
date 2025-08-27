@@ -11,7 +11,7 @@ import SwiftUI
 struct FocolistaApp: App {
     var body: some Scene {
         WindowGroup {
-            Janela()
+            Window()
         }
     }
 }

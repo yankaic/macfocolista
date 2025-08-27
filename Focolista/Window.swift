@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct WindowView: View {
+struct Window: View {
   @State private var subtasks: [Task] = [
     Task(title: "Subtask list", isCompleted: true),
     Task(title: "Subtask reordering", isCompleted: true),
@@ -79,5 +79,5 @@ struct WindowView: View {
 }
 
 #Preview {
-  WindowView()
+  Window()
 }
