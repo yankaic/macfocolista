@@ -16,14 +16,14 @@ struct Janela: View {
     Tarefa(titulo: "Campo de entrada de nova tarefa", concluida: false),
     Tarefa(titulo: "Dica de descrição", concluida: false),
   ]
-
+  
   @State private var selecao = Set<UUID>()
   @State private var tituloJanela: String = "Focolista"
   @State private var descricao: String = "Descricao"
-
+  
   // Foco: guarda o ID da tarefa que deve estar em edição
   @FocusState private var tarefaEmEdicao: UUID?
-
+  
   var body: some View {
     NavigationStack {
       VStack(spacing: 0) {
@@ -35,14 +35,14 @@ struct Janela: View {
                 self.tituloJanela = subtarefa.titulo
               },
               onFinishEdit: {
-                  selecao = [subtarefa.id]
+                selecao = [subtarefa.id]
               },
               tarefa: $subtarefa
             )
             .focused($tarefaEmEdicao, equals: subtarefa.id)
           }
           .onMove(perform: mover)
-
+          
           Button {
             let nova = Tarefa(titulo: "Nova tarefa", concluida: false)
             subtarefas.append(nova)
@@ -70,7 +70,7 @@ struct Janela: View {
       }
     }
   }
-
+  
   private func mover(de origem: IndexSet, para destino: Int) {
     subtarefas.move(fromOffsets: origem, toOffset: destino)
   }

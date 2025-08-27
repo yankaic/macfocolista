@@ -13,13 +13,13 @@ struct SubtarefaView: View {
   @Binding var tarefa: Tarefa
   @State private var titulo: String = ""
   @FocusState private var isFocused: Bool
-
+  
   var body: some View {
     HStack {
       Toggle("", isOn: $tarefa.concluida)
         .toggleStyle(.checkbox)
         .labelsHidden()
-
+      
       TextField("Título da tarefa", text: $titulo)
         .onSubmit {
           if (tarefa.titulo != titulo) {
@@ -30,16 +30,16 @@ struct SubtarefaView: View {
         .focused($isFocused)
         .onChange(of: isFocused) {
           if (!isFocused) {
-              titulo = tarefa.titulo
+            titulo = tarefa.titulo
           }
         }
-      .textFieldStyle(.plain)
-      .onAppear {
-        titulo = tarefa.titulo
-      }
-
+        .textFieldStyle(.plain)
+        .onAppear {
+          titulo = tarefa.titulo
+        }
+      
       Spacer()
-
+      
       Button(action: {
         onEnterSubtask()
       }) {
