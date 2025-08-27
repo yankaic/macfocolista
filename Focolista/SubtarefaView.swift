@@ -12,7 +12,7 @@ struct SubtarefaView: View {
   var onFinishEdit: () -> Void
   @Binding var tarefa: Tarefa
   @State private var titulo: String = ""
-    @FocusState private var isFocused: Bool
+  @FocusState private var isFocused: Bool
 
   var body: some View {
     HStack {
@@ -29,9 +29,9 @@ struct SubtarefaView: View {
         }
         .focused($isFocused)
         .onChange(of: isFocused) {
-            if (!isFocused) {
-                titulo = tarefa.titulo
-            }
+          if (!isFocused) {
+              titulo = tarefa.titulo
+          }
         }
       .textFieldStyle(.plain)
       .onAppear {
