@@ -27,8 +27,9 @@ struct Window: View {
   var body: some View {
     NavigationStack {
       VStack(spacing: 0) {
-        NotesEditor(text: $description)
         List(selection: $selection) {
+          NotesEditor(text: $description)
+            .listRowSeparator(.hidden) //  remove o separador abaixo
           ForEach($subtasks) { $subtask in
             SubtaskView(
               onEnterSubtask: {
@@ -57,8 +58,17 @@ struct Window: View {
           }
           .buttonStyle(.plain)
           .padding(.top, 8)
+          
+          // Espaço extra clicável
+          Color.clear
+            .frame(height: 5)
+            .contentShape(Rectangle())
+            .onTapGesture {
+              selection.removeAll()
+            }
+            .listRowSeparator(.hidden)
         }
-        Spacer(minLength: 20)
+        //Spacer(minLength: 20)
       }
     }
     .background(Color(NSColor.controlBackgroundColor))

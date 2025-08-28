@@ -29,8 +29,8 @@ struct NotesEditor: View {
                 .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
                 .scrollDisabled(true)
                 .textEditorStyle(.plain)
-                .padding(.horizontal, 10)
-                .padding(.top, 15)
+                .padding(.horizontal, 0)
+                .padding(.bottom, 10)
         }
         .background(Color(NSColor.controlBackgroundColor))
     }
