@@ -58,7 +58,9 @@ struct Window: View {
           .buttonStyle(.plain)
           .padding(.top, 8)
         }
+        Spacer(minLength: 20)
       }
+      .background(Color(NSColor.controlBackgroundColor))
       .navigationTitle(windowTitle)
       .toolbar {
         ToolbarItem(placement: .navigation) {
