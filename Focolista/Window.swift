@@ -60,16 +60,16 @@ struct Window: View {
         }
         Spacer(minLength: 20)
       }
-      .background(Color(NSColor.controlBackgroundColor))
-      .navigationTitle(windowTitle)
-      .toolbar {
-        ToolbarItem(placement: .navigation) {
-          Button {
-            // back button action
-            self.windowTitle = "Focolista"
-          } label: {
-            Image(systemName: "chevron.left")
-          }
+    }
+    .background(Color(NSColor.controlBackgroundColor))
+    .navigationTitle(windowTitle)
+    .toolbar {
+      ToolbarItem(placement: .navigation) {
+        Button {
+          // back button action
+          self.windowTitle = "Focolista"
+        } label: {
+          Image(systemName: "chevron.left")
         }
       }
     }
