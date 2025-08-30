@@ -48,21 +48,22 @@ struct Window: View {
           .onMove(perform: move)
           // Botão Add Task (dentro da lista)
           addTaskButton
-            .padding(.top, 8)          
-          .buttonStyle(.plain)
+            .padding(.top, 8)
           
           // Espaço clicável para limpar seleção
           Color.clear
-            .frame(height: 60)
+            .frame(height: 10)
             .contentShape(Rectangle())
             .onTapGesture { selection.removeAll() }
             .listRowSeparator(.hidden)
         }
-        addTaskButton
-          .padding()
-          //.background(.regularMaterial)
-          .clipShape(RoundedRectangle(cornerRadius: 12))
-          .shadow(radius: 3)
+        
+        HStack(){
+          addTaskButton
+            .padding(.vertical, 10)
+            .padding(.horizontal, 17)
+          Spacer()
+        }
       }
     }
     .background(Color(NSColor.controlBackgroundColor))
@@ -88,6 +89,7 @@ struct Window: View {
       Label("Add task", systemImage: "plus")
         .foregroundColor(.accentColor)
     }
+    .buttonStyle(.plain)
   }
   
   private func move(from source: IndexSet, to destination: Int) {
