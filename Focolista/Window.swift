@@ -46,29 +46,23 @@ struct Window: View {
             .focused($editingTask, equals: subtask.id)
           }
           .onMove(perform: move)
-          
-          Button {
-            let newTask = Task(title: "New task", isCompleted: false)
-            subtasks.append(newTask)
-            selection = []
-            editingTask = newTask.id
-          } label: {
-            Label("Add task", systemImage: "plus")
-              .foregroundColor(.accentColor)
-          }
+          // Botão Add Task (dentro da lista)
+          addTaskButton
+            .padding(.top, 8)          
           .buttonStyle(.plain)
-          .padding(.top, 8)
           
-          // Espaço extra clicável
+          // Espaço clicável para limpar seleção
           Color.clear
-            .frame(height: 5)
+            .frame(height: 60)
             .contentShape(Rectangle())
-            .onTapGesture {
-              selection.removeAll()
-            }
+            .onTapGesture { selection.removeAll() }
             .listRowSeparator(.hidden)
         }
-        //Spacer(minLength: 20)
+        addTaskButton
+          .padding()
+          //.background(.regularMaterial)
+          .clipShape(RoundedRectangle(cornerRadius: 12))
+          .shadow(radius: 3)
       }
     }
     .background(Color(NSColor.controlBackgroundColor))
@@ -76,12 +70,23 @@ struct Window: View {
     .toolbar {
       ToolbarItem(placement: .navigation) {
         Button {
-          // back button action
           self.windowTitle = "Focolista"
         } label: {
           Image(systemName: "chevron.left")
         }
       }
+    }
+  }
+  
+  private var addTaskButton: some View {
+    Button {
+      let newTask = Task(title: "New task", isCompleted: false)
+      subtasks.append(newTask)
+      selection.removeAll()
+      editingTask = newTask.id
+    } label: {
+      Label("Add task", systemImage: "plus")
+        .foregroundColor(.accentColor)
     }
   }
   
