@@ -20,6 +20,7 @@ struct Window: View {
   @State private var selection = Set<UUID>()
   @State private var windowTitle: String = "Focolista"
   @State private var description: String = "Description"
+  @State private var textEntry: String = ""
   
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
@@ -67,11 +68,20 @@ struct Window: View {
               selection.removeAll()
             }
             .listRowSeparator(.hidden)
+        }.background(Color(NSColor.controlBackgroundColor))
+        Spacer()
+        HStack(){
+          TextField(
+                 "Adicionar nova tarefa",
+                 text: $textEntry
+          )
         }
-        //Spacer(minLength: 20)
+        .padding(.all, 10)
+        .padding(.top, 0)
+        //.background(.secondary)
       }
     }
-    .background(Color(NSColor.controlBackgroundColor))
+    //.background(Color(NSColor.controlBackgroundColor))
     .navigationTitle(windowTitle)
     .toolbar {
       ToolbarItem(placement: .navigation) {
