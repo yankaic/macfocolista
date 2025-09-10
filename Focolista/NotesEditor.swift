@@ -1,37 +1,47 @@
 import SwiftUI
 
 struct NotesEditor: View {
-    @Binding var text: String
-    @State private var dynamicHeight: CGFloat = 0  // initial estimated height for a single line
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            // Invisible height measurer
-            Text(text)
-                .foregroundColor(.clear)
-                .padding(.horizontal, 18)
-                .background(
-                    GeometryReader { geometry in
-                        Color.clear
-                            .onAppear {
-                                dynamicHeight = geometry.size.height
-                            }
-                            .onChange(of: text) {
-                                dynamicHeight = geometry.size.height
-                            }
-                    }
-                )
-
-            // Visible text editor
-            TextEditor(text: $text)
-                .font(.body)
-                .opacity(0.65)
-                .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
-                .scrollDisabled(true)
-                .textEditorStyle(.plain)
-                .padding(.horizontal, 0)
-                .padding(.bottom, 10)
-        }
-        .background(Color(NSColor.controlBackgroundColor))
+  @Binding var text: String
+  let paddingTextEditor: CGFloat = 8
+  @State private var dynamicHeight: CGFloat = 0  // initial estimated height for a single line
+  
+  var body: some View {
+    ZStack(alignment: .topLeading) {
+      //Texto invisível apenas para cálculo
+      Text(text)
+        .foregroundColor(.clear)
+      //.foregroundColor(.red)
+        .padding(.horizontal, 0)
+        .padding(.bottom, paddingTextEditor)
+        .background(
+          GeometryReader { geometry in
+            Color.clear
+              .onAppear {
+                dynamicHeight = geometry.size.height
+              }
+              .onChange(of: text) {
+                dynamicHeight = geometry.size.height + paddingTextEditor
+              }
+          }
+        )
+      
+      if text.isEmpty {
+        Text("Descrição")
+          .opacity(0.35)
+          .padding(.horizontal, 0)
+          .padding(.bottom, paddingTextEditor)
+      }
+      
+      // Visible text editor
+      TextEditor(text: $text)
+        .font(.body)
+        .opacity(0.65)
+        .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
+        .scrollDisabled(true)
+        .textEditorStyle(.plain)
+        .padding(.horizontal, -5)
+        .padding(.bottom, paddingTextEditor * -1)
     }
+    .background(Color(NSColor.controlBackgroundColor))
+  }
 }

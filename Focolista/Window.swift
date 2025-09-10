@@ -19,7 +19,7 @@ struct Window: View {
   
   @State private var selection = Set<UUID>()
   @State private var windowTitle: String = "Focolista"
-  @State private var description: String = "Description"
+  @State private var description: String = ""
   
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
