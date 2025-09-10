@@ -61,14 +61,13 @@ struct Window: View {
           
           // Espaço extra clicável
           Color.clear
-            .frame(height: 5)
+            .frame(height: 10)
             .contentShape(Rectangle())
             .onTapGesture {
               selection.removeAll()
             }
             .listRowSeparator(.hidden)
         }
-        //Spacer(minLength: 20)
       }
     }
     .background(Color(NSColor.controlBackgroundColor))
