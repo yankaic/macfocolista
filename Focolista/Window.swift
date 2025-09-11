@@ -30,6 +30,7 @@ struct Window: View {
               },
               onFinishEdit: {
                 selection = [subtask.id]
+                Database.shared.updateTaskTitle(id: subtask.id, newTitle: subtask.title)
               },
               onStartEdit: {
                 selection = []

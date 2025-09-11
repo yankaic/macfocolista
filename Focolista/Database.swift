@@ -65,6 +65,16 @@ struct Database {
     }
   }
   
+  func updateTaskTitle(id taskId: UUID, newTitle: String) {
+    let task = tasks.filter(id == taskId.uuidString)
+    do {
+      try db.run(task.update(title <- newTitle))
+      print("✅ Título atualizado para '\(newTitle)' (id: \(taskId))")
+    } catch {
+      print("⚠️ Erro ao atualizar título: \(error)")
+    }
+  }
+  
   func fetchAll() -> [Task] {
     do {
       return try db.prepare(tasks).map { row in
