@@ -7,7 +7,7 @@
 import Foundation
 
 struct Task: Identifiable, Hashable {
-    let id = UUID()
+    let id: UUID = UUID()
     var title: String
     var isCompleted: Bool
 

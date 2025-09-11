@@ -8,14 +8,7 @@
 import SwiftUI
 
 struct Window: View {
-  @State private var subtasks: [Task] = [
-    Task(title: "Subtask list", isCompleted: true),
-    Task(title: "Subtask reordering", isCompleted: true),
-    Task(title: "Back button", isCompleted: true),
-    Task(title: "Description field", isCompleted: true),
-    Task(title: "New task input field", isCompleted: false),
-    Task(title: "Description hint", isCompleted: false),
-  ]
+  @State private var subtasks: [Task] = Database.shared.fetchAll()
   
   @State private var selection = Set<UUID>()
   @State private var windowTitle: String = "Focolista"
@@ -52,6 +45,7 @@ struct Window: View {
             subtasks.append(newTask)
             selection = []
             editingTask = newTask.id
+            Database.shared.insert(task: newTask)
           } label: {
             Label("Add task", systemImage: "plus")
               .foregroundColor(.accentColor)
