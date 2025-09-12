@@ -35,6 +35,9 @@ struct Window: View {
               onStartEdit: {
                 selection = []
               },
+              onToggleComplete: { newCompletedValue in
+                Database.shared.updateTaskCompletion(id: subtask.id, completed: newCompletedValue)
+              },
               task: $subtask
             )
             .focused($editingTask, equals: subtask.id)

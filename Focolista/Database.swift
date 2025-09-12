@@ -69,9 +69,17 @@ struct Database {
     let task = tasks.filter(id == taskId.uuidString)
     do {
       try db.run(task.update(title <- newTitle))
-      print("✅ Título atualizado para '\(newTitle)' (id: \(taskId))")
     } catch {
       print("⚠️ Erro ao atualizar título: \(error)")
+    }
+  }
+  
+  func updateTaskCompletion(id taskId: UUID, completed: Bool) {
+    let task = tasks.filter(id == taskId.uuidString)
+    do {
+      try db.run(task.update(isCompleted <- completed))
+    } catch {
+      print("⚠️ Erro ao atualizar status: \(error)")
     }
   }
   

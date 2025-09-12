@@ -11,6 +11,8 @@ struct SubtaskView: View {
   var onEnterSubtask: () -> Void
   var onFinishEdit: () -> Void
   var onStartEdit: () -> Void
+  var onToggleComplete: (Bool) -> Void
+  
   @Binding var task: Task
   @State private var title: String = ""
   @FocusState private var isFocused: Bool
@@ -20,6 +22,9 @@ struct SubtaskView: View {
       Toggle("", isOn: $task.isCompleted)
         .toggleStyle(.checkbox)
         .labelsHidden()
+        .onChange(of: task.isCompleted) {
+          onToggleComplete(task.isCompleted)
+        }
       
       TextField("Task title", text: $title)
         .onSubmit {
