@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct Window: View {
-  @State private var subtasks: [Task] = Database.shared.fetchAll()
+  @State private var subtasks: [Task] = Task.all()
   
   @State private var selection = Set<UUID>()
   @State private var windowTitle: String = "Focolista"
@@ -23,48 +23,44 @@ struct Window: View {
         List(selection: $selection) {
           NotesEditor(text: $description)
             .listRowSeparator(.hidden) //  remove o separador abaixo
-          ForEach($subtasks) { $subtask in
-            SubtaskView(
-              onEnterSubtask: {
-                self.windowTitle = subtask.title
-              },
-              onFinishEdit: {
-                selection = [subtask.id]
-                Database.shared.updateTaskTitle(id: subtask.id, newTitle: subtask.title)
-              },
-              onStartEdit: {
-                selection = []
-              },
-              onToggleComplete: { newCompletedValue in
-                Database.shared.updateTaskCompletion(id: subtask.id, completed: newCompletedValue)
-              },
-              task: $subtask
-            )
-            .focused($editingTask, equals: subtask.id)
-          }
-          .onMove(perform: move)
-          
-          Button {
-            let newTask = Task(title: "New task", isCompleted: false)
-            subtasks.append(newTask)
-            selection = []
-            editingTask = newTask.id
-            Database.shared.insert(task: newTask)
-          } label: {
-            Label("Add task", systemImage: "plus")
-              .foregroundColor(.accentColor)
-          }
-          .buttonStyle(.plain)
-          .padding(.top, 8)
-          
-          // Espaço extra clicável
-          Color.clear
-            .frame(height: 10)
-            .contentShape(Rectangle())
-            .onTapGesture {
-              selection.removeAll()
+          SubtasksView(
+            subtasks: $subtasks,
+            onEnterSubtask: { subtask in
+              self.windowTitle = subtask.title
+            },
+            onFinishEdit: { subtask in
+              selection = [subtask.id]
+            },
+            onStartEdit: { _ in
+              selection = []
+            },
+            onToggleComplete: { subtask, completed in
+              // Aqui você pode chamar o MemoryStorage/SQLiteStorage
+              print("Task \(subtask.title) marcada como \(completed)")
             }
-            .listRowSeparator(.hidden)
+          )
+            
+            Button {
+              let newTask = Task(title: "New task")
+              subtasks.append(newTask)
+              selection = []
+              editingTask = newTask.id
+              newTask.save()
+            } label: {
+              Label("Add task", systemImage: "plus")
+                .foregroundColor(.accentColor)
+            }
+              .buttonStyle(.plain)
+              .padding(.top, 8)
+            
+            // Espaço extra clicável
+            Color.clear
+              .frame(height: 10)
+              .contentShape(Rectangle())
+              .onTapGesture {
+                selection.removeAll()
+              }
+              .listRowSeparator(.hidden)
         }
       }
     }
@@ -81,12 +77,4 @@ struct Window: View {
       }
     }
   }
-  
-  private func move(from source: IndexSet, to destination: Int) {
-    subtasks.move(fromOffsets: source, toOffset: destination)
-  }
-}
-
-#Preview {
-  Window()
 }

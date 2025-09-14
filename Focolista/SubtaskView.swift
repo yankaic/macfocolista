@@ -13,24 +13,27 @@ struct SubtaskView: View {
   var onStartEdit: () -> Void
   var onToggleComplete: (Bool) -> Void
   
-  @Binding var task: Task
+  var task: Task
   @State private var title: String = ""
   @FocusState private var isFocused: Bool
   
   var body: some View {
     HStack {
-      Toggle("", isOn: $task.isCompleted)
-        .toggleStyle(.checkbox)
-        .labelsHidden()
-        .onChange(of: task.isCompleted) {
-          onToggleComplete(task.isCompleted)
+      Toggle("", isOn: Binding(
+        get: { task.isDone },
+        set: { newValue in
+          task.isDone = newValue
+          onToggleComplete(newValue)
+          task.saveMark()
         }
+      ))
       
       TextField("Task title", text: $title)
         .onSubmit {
           if task.title != title {
             task.title = title
             onFinishEdit()
+            task.saveTitle()
           }
         }
         .focused($isFocused)
