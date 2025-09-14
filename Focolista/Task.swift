@@ -15,6 +15,9 @@ class Task {
   var isDone: Bool
   var subtasks: [Task]
   
+  var onMark: [(Bool) -> Void] = []
+  var onMarkUnico: (Bool) -> Void = { value in }
+  
   private var isSubtasksLoaded: Bool
   var isTemporary: Bool
   private var waitingSaveDescription: Bool = false
@@ -81,6 +84,10 @@ class Task {
   
   func saveMark() {
     Task.repository.updateDone(task: self)
+    for chamar in onMark{
+      chamar(self.isDone)
+    }
+    onMarkUnico(self.isDone)
   }
   
   func saveDescription() {

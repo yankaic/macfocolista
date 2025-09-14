@@ -10,6 +10,10 @@ class MemoryRepository {
   private let sqlite: SQLiteRepository = SQLiteRepository()
   private var cache: [UUID: Task] = [:]  // todas as tarefas, sejam raiz ou subtarefa
   
+  init(){
+    print("Criando mais uma memória")
+  }
+  
   
   /// Carrega uma tarefa isolada
   func load(taskId: UUID) -> Task? {
@@ -24,25 +28,32 @@ class MemoryRepository {
   }
   
   func all() -> [Task] {
-    return sqlite.fetchAll()
+    let loadedTasks = sqlite.fetchAll()
+    return findInMemory(loadedTasks)
   }
   
-  /// Carrega as subtarefas de uma tarefa
-  func loadSubtasks(for task: Task) -> [Task] {
+  private func findInMemory(_ loadedTasks: [Task]) -> [Task] {
     var subtasks: [Task] = []
-    let loadedTasks = sqlite.loadSubtasks(task: task)
-    
     // Ignorar tarefas do banco se já existir em cache
     for loaded in loadedTasks {
       if let cached = cache[loaded.id] {
         subtasks.append(cached)
+        print("Tarefa encontrada em memória")
       } else {
         loaded.isTemporary = false
         cache[loaded.id] = loaded
         subtasks.append(loaded)
+        print("Tarefa encontrada no banco: ")
       }
     }
     return subtasks
+  }
+  
+  /// Carrega as subtarefas de uma tarefa
+  func loadSubtasks(for task: Task) -> [Task] {
+    let loadedTasks = sqlite.loadSubtasks(task: task)
+    
+    return findInMemory(loadedTasks)
   }
   
   func save(newtask task: Task) {

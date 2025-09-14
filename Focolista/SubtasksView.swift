@@ -19,18 +19,17 @@ struct SubtasksView: View {
   var onToggleComplete: (Task, Bool) -> Void
   
   var body: some View {
-    ForEach(subtasks, id: \.id) { subtask in
+    ForEach($subtasks, id: \.id) { $subtask in
       SubtaskView(
         onEnterSubtask: { onEnterSubtask(subtask) },
         onFinishEdit: { onFinishEdit(subtask) },
         onStartEdit: { onStartEdit(subtask) },
         onToggleComplete: { completed in onToggleComplete(subtask, completed) },
-        task: subtask,
+        task: $subtask,
       ).focused($editingTask, equals: subtask.id)
       
     }
     .onMove(perform: move)
-    
   }
   
   private func move(from source: IndexSet, to destination: Int) {

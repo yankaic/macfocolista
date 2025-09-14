@@ -162,6 +162,7 @@ class SQLiteRepository {
         .filter(idColumn == task.id.uuidString)
         .update(isDoneColumn <- task.isDone)
       try db.run(update)
+      print("Marcação chamada pelo banco")
     }
     catch {
       print("Erro ao atualizar marcação: \(error)")

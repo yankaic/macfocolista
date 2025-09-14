@@ -13,20 +13,17 @@ struct SubtaskView: View {
   var onStartEdit: () -> Void
   var onToggleComplete: (Bool) -> Void
   
-  var task: Task
+  @Binding var task: Task
   @State private var title: String = ""
   @FocusState private var isFocused: Bool
   
   var body: some View {
     HStack {
-      Toggle("", isOn: Binding(
-        get: { task.isDone },
-        set: { newValue in
-          task.isDone = newValue
-          onToggleComplete(newValue)
-          task.saveMark()
-        }
-      ))
+      Toggle("", isOn: $task.isDone)
+          .onChange(of: task.isDone) {
+              onToggleComplete(task.isDone)
+              task.saveMark()
+          }
       
       TextField("Task title", text: $title)
         .onSubmit {
@@ -47,6 +44,16 @@ struct SubtaskView: View {
         .textFieldStyle(.plain)
         .onAppear {
           title = task.title
+          task.onMark.append( { value in
+            task.isDone = value
+            print("Marcando por aqui")
+          }
+                              
+          )
+          task.onMarkUnico = { booleano in
+            //task.isDone = booleano
+            print("Marcando tarefa ")
+          }
         }
       
       Spacer()
