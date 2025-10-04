@@ -29,16 +29,17 @@ struct SubtaskView: View {
         .onSubmit {
           if task.title != title {
             task.title = title
-            onFinishEdit()
             task.saveTitle()
-          }
+          }          
+          onFinishEdit()
         }
         .focused($isFocused)
         .onChange(of: isFocused) {
           if isFocused {
             onStartEdit()
           } else {
-            title = task.title
+            task.title = title
+            task.saveTitle()
           }
         }
         .textFieldStyle(.plain)

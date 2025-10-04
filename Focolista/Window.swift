@@ -29,8 +29,15 @@ struct Window: View {
                 self.windowTitle = subtask.title
               },
               onFinishEdit: {
-                selection = [subtask.id]
-                subtask.saveTitle()
+                let index = subtasks.firstIndex(where: { $0.id == subtask.id })
+                let newTask = Task(title: "")
+                //subtasks.append(newTask)
+                  
+                subtasks.insert(newTask, at: (index ?? 0) + 1)
+                selection = []
+                editingTask = newTask.id
+                newTask.save()
+                
               },
               onStartEdit: {
                 selection = []
@@ -45,7 +52,7 @@ struct Window: View {
           .onMove(perform: move)
           
           Button {
-            let newTask = Task(title: "New task")
+            let newTask = Task(title: "")
             subtasks.append(newTask)
             selection = []
             editingTask = newTask.id
