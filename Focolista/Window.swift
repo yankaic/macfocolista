@@ -23,44 +23,48 @@ struct Window: View {
         List(selection: $selection) {
           NotesEditor(text: $description)
             .listRowSeparator(.hidden) //  remove o separador abaixo
-          SubtasksView(
-            subtasks: $subtasks,
-            onEnterSubtask: { subtask in
-              self.windowTitle = subtask.title
-            },
-            onFinishEdit: { subtask in
-              selection = [subtask.id]
-            },
-            onStartEdit: { _ in
-              selection = []
-            },
-            onToggleComplete: { subtask, completed in
-              // Aqui você pode chamar o MemoryStorage/SQLiteStorage
-              print("Task \(subtask.title) marcada como \(completed)")
+          ForEach($subtasks, id: \.id ) { $subtask in
+            SubtaskView(
+              onEnterSubtask: {
+                self.windowTitle = subtask.title
+              },
+              onFinishEdit: {
+                selection = [subtask.id]
+                subtask.saveTitle()
+              },
+              onStartEdit: {
+                selection = []
+              },
+              onToggleComplete: { newCompletedValue in
+                subtask.saveMark()
+              },
+              task: $subtask
+            )
+            .focused($editingTask, equals: subtask.id)
+          }
+          .onMove(perform: move)
+          
+          Button {
+            let newTask = Task(title: "New task")
+            subtasks.append(newTask)
+            selection = []
+            editingTask = newTask.id
+            newTask.save()
+          } label: {
+            Label("Add task", systemImage: "plus")
+              .foregroundColor(.accentColor)
+          }
+          .buttonStyle(.plain)
+          .padding(.top, 8)
+          
+          // Espaço extra clicável
+          Color.clear
+            .frame(height: 10)
+            .contentShape(Rectangle())
+            .onTapGesture {
+              selection.removeAll()
             }
-          )
-            
-            Button {
-              let newTask = Task(title: "New task")
-              subtasks.append(newTask)
-              selection = []
-              editingTask = newTask.id
-              newTask.save()
-            } label: {
-              Label("Add task", systemImage: "plus")
-                .foregroundColor(.accentColor)
-            }
-              .buttonStyle(.plain)
-              .padding(.top, 8)
-            
-            // Espaço extra clicável
-            Color.clear
-              .frame(height: 10)
-              .contentShape(Rectangle())
-              .onTapGesture {
-                selection.removeAll()
-              }
-              .listRowSeparator(.hidden)
+            .listRowSeparator(.hidden)
         }
       }
     }
@@ -76,5 +80,8 @@ struct Window: View {
         }
       }
     }
+  }
+  private func move(from source: IndexSet, to destination: Int) {
+    subtasks.move(fromOffsets: source, toOffset: destination)
   }
 }
