@@ -11,19 +11,22 @@ import Foundation
 class SQLiteRepository {
   private let db: Connection
   
+  private static let formatter = DateFormatter()
+  
   private let tasksTable = Table("tasks")
   private let subtasksTable = Table("subtasks")
   
   private let idColumn = Expression<String>("id")
   private let titleColumn = Expression<String>("title")
   private let descriptionColumn = Expression<String>("description")
-  private let isDoneColumn = Expression<Bool>("isCompleted")
+  private let doneAtColumn = Expression<String>("doneAt")
   
   private let parentIdColumn = Expression<String>("task_id")
   private let subtaskIdColumn = Expression<String>("subtask_id")
   private let positionColumn = Expression<Int>("position")
   
   init() {
+    SQLiteRepository.formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
     let fileManager = FileManager.default
     let appSupport = try! fileManager.url(
       for: .applicationSupportDirectory,
@@ -53,7 +56,7 @@ class SQLiteRepository {
     try db.run(tasksTable.create(ifNotExists: true) { table in
       table.column(idColumn, primaryKey: true)
       table.column(titleColumn)
-      table.column(isDoneColumn)
+      table.column(doneAtColumn)
       table.column(descriptionColumn)
     })
   }
@@ -65,7 +68,7 @@ class SQLiteRepository {
           id: UUID(uuidString: row[idColumn])!,
           title: row[titleColumn],
           description: row[descriptionColumn],
-          isDone: row[isDoneColumn]
+          isDone: row[doneAtColumn] != ""
         )
       }
     } catch {
@@ -90,7 +93,7 @@ class SQLiteRepository {
           id: UUID(uuidString: row[tasksTable[idColumn]])!,
           title: row[tasksTable[titleColumn]],
           description: row[tasksTable[descriptionColumn]],
-          isDone: row[tasksTable[isDoneColumn]]
+          isDone: row[tasksTable[doneAtColumn]] != ""
         )
         subtasks.append(task)
       }
@@ -105,7 +108,7 @@ class SQLiteRepository {
       let insert = tasksTable.insert(
         idColumn <- task.id.uuidString,
         titleColumn <- task.title,
-        isDoneColumn <- task.isDone,
+        doneAtColumn <- task.isDone ? SQLiteRepository.formatter.string(from: Date()): "",
         descriptionColumn <- task.description
       )
       try db.run(insert)
@@ -122,7 +125,7 @@ class SQLiteRepository {
             id: UUID(uuidString: row[idColumn]) ?? UUID(),
             title: row[titleColumn],
             description: row[descriptionColumn],
-            isDone: row[isDoneColumn]
+            isDone: row[doneAtColumn] != ""
           )
         }
       } catch {
@@ -160,9 +163,10 @@ class SQLiteRepository {
   
   func updateDone(task: Task){
     do {
+      let doneAt = task.isDone ? SQLiteRepository.formatter.string(from: Date()): ""
       let update = tasksTable
         .filter(idColumn == task.id.uuidString)
-        .update(isDoneColumn <- task.isDone)
+        .update(doneAtColumn <- doneAt)
       try db.run(update)
       print("Marcação chamada pelo banco")
     }
