@@ -13,30 +13,33 @@ struct SubtaskView: View {
   var onEnterKeyPressed: () -> Void
   var onStartEdit: () -> Void
   var onToggleComplete: (Bool) -> Void
-  
+
   @Binding var task: Task
   @State private var title: String = ""
+  @State private var isDone: Bool = false
   @FocusState private var isFocused: Bool
-  
+
   var body: some View {
     HStack {
-      Toggle("", isOn: $task.isDone)
-          .onChange(of: task.isDone) {
-              onToggleComplete(task.isDone)
-              task.saveMark()
+      Toggle("", isOn: $isDone)
+        .onChange(of: isDone) {
+          //onToggleComplete(task.isDone)
+          if isDone != task.isDone {
+            task.isDone = isDone
+            task.saveMark()
           }
-      
+        }
+
       TextField("Task title", text: $title)
         .onSubmit {
           if task.title != title {
             task.title = title
-            if (task.isTemporary) {
+            if task.isTemporary {
               task.save()
-            }
-            else {
+            } else {
               task.saveTitle()
             }
-          }          
+          }
           onEnterKeyPressed()
         }
         .focused($isFocused)
@@ -46,10 +49,9 @@ struct SubtaskView: View {
           } else {
             if task.title != title {
               task.title = title
-              if (task.isTemporary) {
+              if task.isTemporary {
                 task.save()
-              }
-              else {
+              } else {
                 task.saveTitle()
               }
             }
@@ -59,20 +61,16 @@ struct SubtaskView: View {
         .textFieldStyle(.plain)
         .onAppear {
           title = task.title
+          isDone = task.isDone
+
           task.onMark.append( { value in
-            task.isDone = value
-            print("Marcando por aqui")
-          }
-                              
-          )
-          task.onMarkUnico = { booleano in
-            //task.isDone = booleano
-            print("Marcando tarefa ")
-          }
+            isDone = value
+            print("Marcando por evento")
+          })
         }
-      
+
       Spacer()
-      
+
       Button(action: {
         onEnterSubtask()
       }) {

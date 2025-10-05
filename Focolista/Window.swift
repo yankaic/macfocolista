@@ -47,7 +47,7 @@ struct Window: View {
                 selection = []
               },
               onToggleComplete: { newCompletedValue in
-                subtask.saveMark()
+                //subtask.saveMark()
               },
               task: $subtask
             )
