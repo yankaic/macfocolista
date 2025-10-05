@@ -52,9 +52,9 @@ struct SubtaskView: View {
               else {
                 task.saveTitle()
               }
-            }  
+            }
+            onFinishEdit()
           }
-          onFinishEdit()
         }
         .textFieldStyle(.plain)
         .onAppear {
