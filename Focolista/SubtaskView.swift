@@ -10,6 +10,7 @@ import SwiftUI
 struct SubtaskView: View {
   var onEnterSubtask: () -> Void
   var onFinishEdit: () -> Void
+  var onEnterKeyPressed: () -> Void
   var onStartEdit: () -> Void
   var onToggleComplete: (Bool) -> Void
   
@@ -29,18 +30,31 @@ struct SubtaskView: View {
         .onSubmit {
           if task.title != title {
             task.title = title
-            task.saveTitle()
+            if (task.isTemporary) {
+              task.save()
+            }
+            else {
+              task.saveTitle()
+            }
           }          
-          onFinishEdit()
+          onEnterKeyPressed()
         }
         .focused($isFocused)
         .onChange(of: isFocused) {
           if isFocused {
             onStartEdit()
           } else {
-            task.title = title
-            task.saveTitle()
+            if task.title != title {
+              task.title = title
+              if (task.isTemporary) {
+                task.save()
+              }
+              else {
+                task.saveTitle()
+              }
+            }  
           }
+          onFinishEdit()
         }
         .textFieldStyle(.plain)
         .onAppear {

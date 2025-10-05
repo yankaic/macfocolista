@@ -109,6 +109,7 @@ class SQLiteRepository {
         descriptionColumn <- task.description
       )
       try db.run(insert)
+      print("Criando nova tarefa: \(task.title)")
     } catch {
       print("Erro ao inserir: \(error)")
     }
@@ -150,6 +151,7 @@ class SQLiteRepository {
         .filter(idColumn == task.id.uuidString)
         .update(titleColumn <- task.title)
       try db.run(update)
+      print("Tarefa renomeada para: \(task.title)")
     }
     catch {
       print("Erro ao atualizar título: \(error)")

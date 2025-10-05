@@ -29,15 +29,19 @@ struct Window: View {
                 self.windowTitle = subtask.title
               },
               onFinishEdit: {
+                if (subtask.title == "") {
+                  let index = subtasks.firstIndex(where: { $0.id == subtask.id })
+                  subtasks.remove(at: index ?? 0)
+                }
+              },
+              onEnterKeyPressed: {
                 let index = subtasks.firstIndex(where: { $0.id == subtask.id })
                 let newTask = Task(title: "")
                 //subtasks.append(newTask)
                   
                 subtasks.insert(newTask, at: (index ?? 0) + 1)
                 selection = []
-                editingTask = newTask.id
-                newTask.save()
-                
+                editingTask = newTask.id                
               },
               onStartEdit: {
                 selection = []
@@ -56,7 +60,6 @@ struct Window: View {
             subtasks.append(newTask)
             selection = []
             editingTask = newTask.id
-            newTask.save()
           } label: {
             Label("Add task", systemImage: "plus")
               .foregroundColor(.accentColor)
