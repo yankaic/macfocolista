@@ -21,9 +21,13 @@ class SQLiteRepository {
   private let descriptionColumn = Expression<String>("description")
   private let doneAtColumn = Expression<String>("doneAt")
   
-  private let parentIdColumn = Expression<String>("task_id")
+  private let parentIdColumn = Expression<String>("parent_id")
   private let subtaskIdColumn = Expression<String>("subtask_id")
   private let positionColumn = Expression<Int>("position")
+  
+  private let createdAtColumn = Expression<String>("created_at")
+  private let updatedAtColumn = Expression<String>("updated_at")
+  private let deletedAtColumn = Expression<String>("deleted_at")
   
   init() {
     SQLiteRepository.formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -56,9 +60,28 @@ class SQLiteRepository {
     try db.run(tasksTable.create(ifNotExists: true) { table in
       table.column(idColumn, primaryKey: true)
       table.column(titleColumn)
-      table.column(doneAtColumn)
       table.column(descriptionColumn)
+      table.column(doneAtColumn)
+      table.column(createdAtColumn)
+      table.column(updatedAtColumn)
     })
+    try db.run("""
+      CREATE TABLE IF NOT EXISTS subtasks (
+        parent_id TEXT NOT NULL,
+        subtask_id TEXT NOT NULL,
+        position INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        PRIMARY KEY (parent_id, subtask_id),
+        FOREIGN KEY (parent_id) REFERENCES tasks(id) ON DELETE CASCADE,
+        FOREIGN KEY (subtask_id) REFERENCES tasks(id) ON DELETE CASCADE
+      );
+    """)
+  }
+  
+  private static func getStringDate() -> String {
+    return SQLiteRepository.formatter.string(from: Date())
   }
   
   func load(taskId: UUID) -> Task? {
@@ -108,8 +131,10 @@ class SQLiteRepository {
       let insert = tasksTable.insert(
         idColumn <- task.id.uuidString,
         titleColumn <- task.title,
-        doneAtColumn <- task.isDone ? SQLiteRepository.formatter.string(from: Date()): "",
-        descriptionColumn <- task.description
+        doneAtColumn <- task.isDone ? SQLiteRepository.getStringDate(): "",
+        descriptionColumn <- task.description,
+        createdAtColumn <- SQLiteRepository.getStringDate(),
+        updatedAtColumn <- SQLiteRepository.getStringDate()
       )
       try db.run(insert)
       print("Criando nova tarefa: \(task.title)")
@@ -140,7 +165,10 @@ class SQLiteRepository {
       let insert = subtasksTable.insert(
         parentIdColumn <- task.id.uuidString,
         subtaskIdColumn <- task.id.uuidString,
-        positionColumn <- position
+        positionColumn <- position,
+        createdAtColumn <- SQLiteRepository.getStringDate(),
+        updatedAtColumn <- SQLiteRepository.getStringDate(),
+        deletedAtColumn <- ""
       )
       try db.run(insert)
     } catch {
@@ -152,7 +180,8 @@ class SQLiteRepository {
     do {
       let update = tasksTable
         .filter(idColumn == task.id.uuidString)
-        .update(titleColumn <- task.title)
+        .update(titleColumn <- task.title,
+                updatedAtColumn <- SQLiteRepository.getStringDate())
       try db.run(update)
       print("Tarefa renomeada para: \(task.title)")
     }
@@ -163,10 +192,11 @@ class SQLiteRepository {
   
   func updateDone(task: Task){
     do {
-      let doneAt = task.isDone ? SQLiteRepository.formatter.string(from: Date()): ""
+      let doneAt = task.isDone ? SQLiteRepository.getStringDate(): ""
       let update = tasksTable
         .filter(idColumn == task.id.uuidString)
-        .update(doneAtColumn <- doneAt)
+        .update(doneAtColumn <- doneAt,
+                updatedAtColumn <- SQLiteRepository.getStringDate())
       try db.run(update)
       print("Marcação chamada pelo banco")
     }
@@ -179,7 +209,8 @@ class SQLiteRepository {
     do {
       let update = tasksTable
         .filter(idColumn == task.id.uuidString)
-        .update(descriptionColumn <- task.description)
+        .update(descriptionColumn <- task.description,
+                updatedAtColumn <- SQLiteRepository.getStringDate())
       try db.run(update)
     }
     catch {
