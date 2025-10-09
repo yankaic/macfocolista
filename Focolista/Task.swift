@@ -20,6 +20,7 @@ class Task {
   private var waitingSaveDescription: Bool = false
   
   private static var repository: MemoryRepository = MemoryRepository()
+  private static var navigationStack: [Task] = []
   
   init(title: String) {
     self.id = UUID()
@@ -42,6 +43,7 @@ class Task {
   }
   
   func save() {
+    print(id.uuidString)
     Task.repository.save(newtask: self)
     self.isTemporary = false
   }
@@ -65,6 +67,35 @@ class Task {
     }
     task!.isTemporary = false
     return task
+  }
+  
+  static func getNavigation() -> [Task] {
+    print("Solicitada a informação da navegação")
+    
+    if Task.navigationStack.isEmpty {
+      if let ids = UserDefaults.standard.stringArray(forKey: "navigationStack") {
+        let tasks = ids.compactMap { idString -> Task? in
+          guard let uuid = UUID(uuidString: idString) else { return nil }
+          return Task.load(id: uuid)
+        }
+        Task.navigationStack = tasks
+      }
+    }
+    
+    if Task.navigationStack.isEmpty {
+      print("Tratamento da lista vazia de navegação. Inserindo um item padrão (home)")
+      if let homeIdString = UserDefaults.standard.string(forKey: "homeTask"),
+         let homeId = UUID(uuidString: homeIdString),
+         let home = Task.load(id: homeId) {
+        Task.navigationStack.append(home)
+      } else {
+        let taskFake = Task(title: "Tarefa fake")
+        Task.navigationStack.append(taskFake)
+        print("⚠️ Nenhuma tarefa 'home' encontrada no banco ou no UserDefaults.")
+      }
+    }
+    
+    return Task.navigationStack
   }
   
   func addSubtask(subtask: Task) {

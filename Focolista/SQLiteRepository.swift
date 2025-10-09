@@ -30,6 +30,7 @@ class SQLiteRepository {
   private let deletedAtColumn = Expression<String>("deleted_at")
   
   init() {
+    print("Inicializando o SQLite Repository")
     SQLiteRepository.formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
     let fileManager = FileManager.default
     let appSupport = try! fileManager.url(
@@ -57,6 +58,7 @@ class SQLiteRepository {
   }
   
   private func createTableIfNeeded() throws {
+    print("Checando se tem tabela e criando se necessário")
     try db.run(tasksTable.create(ifNotExists: true) { table in
       table.column(idColumn, primaryKey: true)
       table.column(titleColumn)
@@ -78,6 +80,17 @@ class SQLiteRepository {
         FOREIGN KEY (subtask_id) REFERENCES tasks(id) ON DELETE CASCADE
       );
     """)
+    print("Checando se tem tarefas cadastradas no banco de dados")
+    let count = (try? db.scalar("SELECT COUNT(*) FROM tasks") as? Int64) ?? 0
+    if (count == 0) {
+      print("Criando a primeira tarefa no banco de dados")
+      try db.run("""
+        INSERT INTO tasks values ('8B426F68-BED3-40F8-B2D1-DB080A3100B3', 'Focolista do banco', '', '', '', '');
+      """)
+      print("Tarefa salva")
+      UserDefaults.standard.set("8B426F68-BED3-40F8-B2D1-DB080A3100B3", forKey: "homeTask")
+      print("Identificador salvo em UserDefaults")
+    }
   }
   
   private static func getStringDate() -> String {

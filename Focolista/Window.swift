@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct Window: View {
-  @State private var subtasks: [Task] = Task.all()
+  @State private var task: Task = Task(title: "Linha inicial")
+  @State private var subtasks: [Task] = []
   
   @State private var selection = Set<UUID>()
   @State private var windowTitle: String = "Focolista"
@@ -77,6 +78,17 @@ struct Window: View {
             .listRowSeparator(.hidden)
         }
       }
+    }
+    .onAppear {
+      print(Task(title: "Tarefa vazia só para iniciar").title)
+      print("Método chamado ao iniciar a janela. É aqui que a tarefa deve ser carregada.")
+      self.task = Task.getNavigation().last!
+      print("Tarefa carregada: " + self.task.title)
+      windowTitle = self.task.title
+      description = self.task.description
+      
+      task.loadSubtasks()
+      subtasks = task.subtasks
     }
     .background(Color(NSColor.controlBackgroundColor))
     .navigationTitle(windowTitle)

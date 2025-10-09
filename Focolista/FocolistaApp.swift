@@ -40,7 +40,10 @@ func saveWindowFrame(for window: NSWindow) {
     "width": frame.size.width,
     "height": frame.size.height
   ]
+  print("Fechando programa e salvando informações")
   UserDefaults.standard.set(dict, forKey: "janelaPrincipal.frame")
+  let navigation = Task.getNavigation().map{ task in task.id.uuidString }
+  UserDefaults.standard.set(navigation, forKey: "navigationStack")
 }
 
 func loadWindowFrame(for window: NSWindow) {

@@ -11,7 +11,7 @@ class MemoryRepository {
   private var cache: [UUID: Task] = [:]  // todas as tarefas, sejam raiz ou subtarefa
   
   init(){
-    print("Criando mais uma memória")
+    print("Inicializando o Memory Repository")
   }
   
   
