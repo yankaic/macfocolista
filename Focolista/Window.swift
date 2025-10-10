@@ -46,6 +46,8 @@ struct Window: View {
               },
               onStartEdit: {
                 selection = []
+              }, onCommitNewTask: {
+                task.addSubtask(subtask: subtask)
               },
               onToggleComplete: { newCompletedValue in
                 //subtask.saveMark()

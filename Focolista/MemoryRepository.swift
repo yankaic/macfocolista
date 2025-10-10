@@ -57,13 +57,16 @@ class MemoryRepository {
   }
   
   func save(newtask task: Task) {
-    sqlite.insert(newtask: task)
-    cache[task.id] = task
+    if (task.isTemporary) {
+      sqlite.insert(newtask: task)
+      task.isTemporary = false
+      cache[task.id] = task
+    }
   }
   
   func addSubtask(task: Task, subtask: Task, position: Int) {
-    sqlite.addSubtask(task: task, subtask: subtask, position: position)
-    
+    save(newtask: subtask)
+    sqlite.addSubtask(task: task, subtask: subtask, position: position)    
   }
   
   func rename(task: Task){

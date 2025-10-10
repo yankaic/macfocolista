@@ -50,8 +50,10 @@ class Task {
   
   func loadSubtasks() {
     if (isSubtasksLoaded) {
+      print("Subtarefas já carregadas")
       return
     }
+    print("Subtarefas não carregas, então, carregando do banco")
     self.subtasks = Task.repository.loadSubtasks(for: self)
     self.isSubtasksLoaded = true
   }
@@ -99,11 +101,9 @@ class Task {
   }
   
   func addSubtask(subtask: Task) {
-    if (subtask.isTemporary) {
-      Task.repository.save(newtask: subtask)
-      subtask.isTemporary = false
-    }
+    
     Task.repository.addSubtask(task: self, subtask: subtask, position: self.subtasks.count)
+    subtasks.append(subtask)
   }
   
   func saveTitle() {

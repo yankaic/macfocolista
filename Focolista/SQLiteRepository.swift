@@ -177,7 +177,7 @@ class SQLiteRepository {
     do {
       let insert = subtasksTable.insert(
         parentIdColumn <- task.id.uuidString,
-        subtaskIdColumn <- task.id.uuidString,
+        subtaskIdColumn <- subtask.id.uuidString,
         positionColumn <- position,
         createdAtColumn <- SQLiteRepository.getStringDate(),
         updatedAtColumn <- SQLiteRepository.getStringDate(),

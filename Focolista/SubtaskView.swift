@@ -12,6 +12,7 @@ struct SubtaskView: View {
   var onFinishEdit: () -> Void
   var onEnterKeyPressed: () -> Void
   var onStartEdit: () -> Void
+  var onCommitNewTask: () -> Void
   var onToggleComplete: (Bool) -> Void
 
   @Binding var task: Task
@@ -35,7 +36,7 @@ struct SubtaskView: View {
           if task.title != title {
             task.title = title
             if task.isTemporary {
-              task.save()
+              onCommitNewTask()
             } else {
               task.saveTitle()
             }
@@ -50,7 +51,7 @@ struct SubtaskView: View {
             if task.title != title {
               task.title = title
               if task.isTemporary {
-                task.save()
+                onCommitNewTask()
               } else {
                 task.saveTitle()
               }
