@@ -100,9 +100,8 @@ class Task {
     return Task.navigationStack
   }
   
-  func addSubtask(subtask: Task) {
-    
-    Task.repository.addSubtask(task: self, subtask: subtask, position: self.subtasks.count)
+  func addSubtask(subtask: Task, position: Int) {
+    Task.repository.addSubtask(task: self, subtask: subtask, position: position)
     subtasks.append(subtask)
   }
   
