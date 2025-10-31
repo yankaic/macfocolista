@@ -24,28 +24,35 @@ struct Window: View {
         List(selection: $selection) {
           NotesEditor(text: $description)
             .listRowSeparator(.hidden) //  remove o separador abaixo
-          ForEach($subtasks.enumerated(), id: \.id ) { position, $subtask in
+          ForEach($subtasks, id: \.id) { $subtask in
             SubtaskView(
               onEnterSubtask: {
-                self.windowTitle = subtask.title
+                windowTitle = subtask.title
               },
               onFinishEdit: {
-                if (subtask.title == "") {
-                  subtasks.remove(at: position)
+                if subtask.title.isEmpty {
+                  if let index = subtasks.firstIndex(where: { $0.id == subtask.id }) {
+                    subtasks.remove(at: index)
+                  }
                 }
               },
               onEnterKeyPressed: {
                 let newTask = Task(title: "")
-                //subtasks.append(newTask)
-                  
-                subtasks.insert(newTask, at: position + 1)
+                if let index = subtasks.firstIndex(where: { $0.id == subtask.id }) {
+                  subtasks.insert(newTask, at: index + 1)
+                } else {
+                  subtasks.append(newTask)
+                }
                 selection = []
-                editingTask = newTask.id                
+                editingTask = newTask.id
               },
               onStartEdit: {
                 selection = []
-              }, onCommitNewTask: {
-                task.addSubtask(subtask: subtask, position: position + 1)
+              },
+              onCommitNewTask: {
+                if let index = subtasks.firstIndex(where: { $0.id == subtask.id }) {
+                  task.addSubtask(subtask: subtask, position: index + 1)
+                }
               },
               onToggleComplete: { newCompletedValue in
                 //subtask.saveMark()
