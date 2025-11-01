@@ -35,7 +35,7 @@ struct SubtaskView: View {
         .onSubmit {
           if task.title != title {
             task.title = title
-            if task.isTemporary {
+            if !task.isPersisted {
               onCommitNewTask()
             } else {
               task.saveTitle()
@@ -50,7 +50,7 @@ struct SubtaskView: View {
           } else {
             if task.title != title {
               task.title = title
-              if task.isTemporary {
+              if task.isPersisted {
                 onCommitNewTask()
               } else {
                 task.saveTitle()

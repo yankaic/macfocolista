@@ -12,11 +12,11 @@ class Task {
   var description: String
   var isDone: Bool
   var subtasks: [Task]
+  var subtasksIDs: String
   
   var onMark: [(Bool) -> Void] = []
   
-  private var isSubtasksLoaded: Bool
-  var isTemporary: Bool
+  var isPersisted: Bool
   private var waitingSaveDescription: Bool = false
   
   private static var repository: MemoryRepository = MemoryRepository()
@@ -28,46 +28,38 @@ class Task {
     self.description = ""
     self.isDone = false
     self.subtasks = []
-    self.isSubtasksLoaded = false
-    self.isTemporary = true
+    self.isPersisted = false
   }
   
-  init(id: UUID, title: String, description: String, isDone: Bool){
+  init(id: UUID) {
+    self.id = id
+    self.title = ""
+    self.description = ""
+    self.isDone = false
+    self.subtasks = []
+    self.isPersisted = false
+  }
+  
+  init(id: UUID, title: String, description: String, isDone: Bool, subtasks: [Task]){
     self.id = id
     self.title = title
     self.description = description
     self.isDone = isDone
-    self.subtasks = []
-    self.isSubtasksLoaded = false
-    self.isTemporary = true
+    self.subtasks = subtasks
+    self.isPersisted = true
   }
   
   func save() {
     print(id.uuidString)
     Task.repository.save(newtask: self)
-    self.isTemporary = false
   }
   
-  func loadSubtasks() {
-    if (isSubtasksLoaded) {
-      print("Subtarefas já carregadas")
-      return
-    }
-    print("Subtarefas não carregas, então, carregando do banco")
-    self.subtasks = Task.repository.loadSubtasks(for: self)
-    self.isSubtasksLoaded = true
-  }
-  
-  static func all() -> [Task] {
-    return repository.all()
-  }
   
   static func load(id: UUID) -> Task? {
     let task: Task? = Task.repository.load(taskId: id)
     if (task == nil){
       return nil
     }
-    task!.isTemporary = false
     return task
   }
   

@@ -14,16 +14,12 @@ class SQLiteRepository {
   private static let formatter = DateFormatter()
   
   private let tasksTable = Table("tasks")
-  private let subtasksTable = Table("subtasks")
   
   private let idColumn = Expression<String>("id")
   private let titleColumn = Expression<String>("title")
   private let descriptionColumn = Expression<String>("description")
   private let doneAtColumn = Expression<String>("doneAt")
-  
-  private let parentIdColumn = Expression<String>("parent_id")
-  private let subtaskIdColumn = Expression<String>("subtask_id")
-  private let positionColumn = Expression<Int>("position")
+  private let subtasksColumn = Expression<String>("subtaks")
   
   private let createdAtColumn = Expression<String>("created_at")
   private let updatedAtColumn = Expression<String>("updated_at")
@@ -50,6 +46,9 @@ class SQLiteRepository {
     
     do {
       db = try Connection(dbPath)
+      db.trace { sql in
+        print("SQL Executada: \(sql)")
+      }
       //try db.run(tasksTable.drop(ifExists: true))
       try createTableIfNeeded()
     } catch {
@@ -64,28 +63,16 @@ class SQLiteRepository {
       table.column(titleColumn)
       table.column(descriptionColumn)
       table.column(doneAtColumn)
+      table.column(subtasksColumn)
       table.column(createdAtColumn)
       table.column(updatedAtColumn)
     })
-    try db.run("""
-      CREATE TABLE IF NOT EXISTS subtasks (
-        parent_id TEXT NOT NULL,
-        subtask_id TEXT NOT NULL,
-        position INTEGER NOT NULL,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        deleted_at TEXT,
-        PRIMARY KEY (parent_id, subtask_id),
-        FOREIGN KEY (parent_id) REFERENCES tasks(id) ON DELETE CASCADE,
-        FOREIGN KEY (subtask_id) REFERENCES tasks(id) ON DELETE CASCADE
-      );
-    """)
     print("Checando se tem tarefas cadastradas no banco de dados")
     let count = (try? db.scalar("SELECT COUNT(*) FROM tasks") as? Int64) ?? 0
     if (count == 0) {
       print("Criando a primeira tarefa no banco de dados")
       try db.run("""
-        INSERT INTO tasks values ('8B426F68-BED3-40F8-B2D1-DB080A3100B3', 'Focolista do banco', '', '', '', '');
+        INSERT INTO tasks values ('8B426F68-BED3-40F8-B2D1-DB080A3100B3', 'Focolista do banco', '', '', '', '', '');
       """)
       print("Tarefa salva")
       UserDefaults.standard.set("8B426F68-BED3-40F8-B2D1-DB080A3100B3", forKey: "homeTask")
@@ -97,46 +84,95 @@ class SQLiteRepository {
     return SQLiteRepository.formatter.string(from: Date())
   }
   
+  /// Carrega uma tarefa específica do banco de dados a partir de seu UUID.
+  ///
+  /// Este método busca a tarefa correspondente no banco, inicializando seus atributos principais.
+  /// As subtarefas são carregadas parcialmente, na qual, apenas seus identificadores (UUIDs) serão recuperados,
+  /// permitindo um carregamento posterior mais eficiente.
+  ///
+  /// - Parameter taskId: O identificador único (`UUID`) da tarefa a ser carregada.
+  /// - Returns: Um objeto `Task` completamente inicializado, ou `nil` se a tarefa não for encontrada.
   func load(taskId: UUID) -> Task? {
     do {
-      if let row = try db.pluck(tasksTable.filter(idColumn == taskId.uuidString)) {
-        return Task(
-          id: UUID(uuidString: row[idColumn])!,
-          title: row[titleColumn],
-          description: row[descriptionColumn],
-          isDone: row[doneAtColumn] != ""
-        )
+      guard let row = try db.pluck(tasksTable.filter(idColumn == taskId.uuidString)) else {
+        print("Nenhuma tarefa encontrada com ID: \(taskId)")
+        return nil
       }
+      
+      // Processa os identificadores das subtarefas (se houver)
+      let subtaskIDs = row[subtasksColumn]
+        .split(separator: ",")
+        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .compactMap(UUID.init) // mantém apenas UUIDs válidos
+      
+      let subtasks = subtaskIDs.map { Task(id: $0) }
+      
+      // Garante que o UUID principal é válido antes de criar a Task
+      guard let taskUUID = UUID(uuidString: row[idColumn]) else {
+        print("ID inválido no registro da tarefa: \(row[idColumn])")
+        return nil
+      }
+      
+      return Task(
+        id: taskUUID,
+        title: row[titleColumn],
+        description: row[descriptionColumn],
+        isDone: !row[doneAtColumn].isEmpty,
+        subtasks: subtasks
+      )
     } catch {
-      print("Erro ao carregar tarefa: \(error)")
+      print("Erro ao carregar tarefa do banco de dados: \(error)")
+      return nil
     }
-    return nil
   }
   
-  /// Carrega uma lista de subtarefas, passando uma tarefa mãe.
-  /// - Parameter parentId: Tarefa mãe que possui as subtarefas
-  /// - Returns: Retorna a lista de de subtarefas para ser adicionada na tarefa mãe em sua lista de subtarefas.
-  func loadSubtasks(task: Task) -> [Task] {
-    var subtasks: [Task] = []
+  /// Atualiza os atributos de uma lista de tarefas existentes com os dados mais recentes do banco de dados.
+  ///
+  /// Este método recebe uma lista mutável de `Task` e atualiza seus atributos com base
+  /// nas informações armazenadas no banco. Somente os campos principais são carregados,
+  /// enquanto as subtarefas são recuperadas parcialmente (apenas seus identificadores).
+  ///
+  /// - Parameter tasks: Lista de tarefas que serão atualizadas in-place.
+  func refresh(tasks: [Task]) {
+    guard !tasks.isEmpty else { return }
+    
     do {
-      let query = subtasksTable
-        .join(tasksTable, on: subtasksTable[subtaskIdColumn] == tasksTable[idColumn])
-        .filter(subtasksTable[parentIdColumn] == task.id.uuidString)
-        .order(subtasksTable[positionColumn].asc)
+      // Coleta os IDs das tarefas informadas
+      let idStrings = tasks.map { $0.id.uuidString }
+      
+      // Busca no banco todas as tarefas correspondentes
+      let query = tasksTable.filter(idStrings.contains(idColumn))
       
       for row in try db.prepare(query) {
-        let task = Task(
-          id: UUID(uuidString: row[tasksTable[idColumn]])!,
-          title: row[tasksTable[titleColumn]],
-          description: row[tasksTable[descriptionColumn]],
-          isDone: row[tasksTable[doneAtColumn]] != ""
-        )
-        subtasks.append(task)
+        guard let taskUUID = UUID(uuidString: row[idColumn]) else {
+          print("Ignorando tarefa com ID inválido: \(row[idColumn])")
+          continue
+        }
+        
+        // Localiza a task correspondente na lista original
+        guard let index = tasks.firstIndex(where: { $0.id == taskUUID }) else {
+          print("Tarefa com ID \(taskUUID) não encontrada na lista fornecida.")
+          continue
+        }
+        
+        // Processa subtarefas (somente IDs)
+        let subtaskIDs = row[subtasksColumn]
+          .split(separator: ",")
+          .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+          .compactMap(UUID.init)
+        
+        let subtasks = subtaskIDs.map { Task(id: $0) }
+        
+        // Atualiza os atributos da tarefa existente
+        tasks[index].title = row[titleColumn]
+        tasks[index].description = row[descriptionColumn]
+        tasks[index].isDone = !row[doneAtColumn].isEmpty
+        tasks[index].subtasks = subtasks
+        tasks[index].isPersisted = true
       }
     } catch {
-      print("Erro ao carregar subtarefas: \(error)")
+      print("Erro ao atualizar lista de tarefas: \(error)")
     }
-    return subtasks
   }
   
   func insert(newtask task: Task) {
@@ -151,41 +187,26 @@ class SQLiteRepository {
       )
       try db.run(insert)
       print("Criando nova tarefa: \(task.title)")
+      task.isPersisted = true
     } catch {
       print("Erro ao inserir: \(error)")
     }
   }
   
-  func fetchAll() -> [Task] {
-      do {
-        return try db.prepare(tasksTable).map { row in
-          Task(
-            id: UUID(uuidString: row[idColumn]) ?? UUID(),
-            title: row[titleColumn],
-            description: row[descriptionColumn],
-            isDone: row[doneAtColumn] != ""
-          )
-        }
-      } catch {
-        print("Erro ao buscar: \(error)")
-        return []
-      }
-    }
-  
-  
-  func addSubtask(task: Task, subtask: Task, position: Int){
+  func updateSubtasks(task: Task){
+    let subtasksString = task.subtasks
+      .map { $0.id.uuidString }
+      .joined(separator: ",")
     do {
-      let insert = subtasksTable.insert(
-        parentIdColumn <- task.id.uuidString,
-        subtaskIdColumn <- subtask.id.uuidString,
-        positionColumn <- position,
-        createdAtColumn <- SQLiteRepository.getStringDate(),
-        updatedAtColumn <- SQLiteRepository.getStringDate(),
-        deletedAtColumn <- ""
-      )
-      try db.run(insert)
-    } catch {
-      print("Erro ao inserir: \(error)")
+      let update = tasksTable
+        .filter(idColumn == task.id.uuidString)
+        .update(subtasksColumn <- task.title,
+                updatedAtColumn <- SQLiteRepository.getStringDate())
+      try db.run(update)
+      print("Lista de subtarefas atualizada")
+    }
+    catch {
+      print("Erro ao atualizar título: \(error)")
     }
   }
   
