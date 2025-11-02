@@ -12,7 +12,6 @@ class Task {
   var description: String
   var isDone: Bool
   var subtasks: [Task]
-  var subtasksIDs: String
   
   var onMark: [(Bool) -> Void] = []
   
@@ -21,6 +20,15 @@ class Task {
   
   private static var repository: MemoryRepository = MemoryRepository()
   private static var navigationStack: [Task] = []
+  
+  init() {
+    self.id = UUID()
+    self.title = ""
+    self.description = ""
+    self.isDone = false
+    self.subtasks = []
+    self.isPersisted = false
+  }
   
   init(title: String) {
     self.id = UUID()
@@ -93,8 +101,8 @@ class Task {
   }
   
   func addSubtask(subtask: Task, position: Int) {
-    Task.repository.addSubtask(task: self, subtask: subtask, position: position)
     subtasks.append(subtask)
+    Task.repository.addSubtask(task: self, subtask: subtask, position: position)
   }
   
   func saveTitle() {

@@ -19,7 +19,7 @@ class SQLiteRepository {
   private let titleColumn = Expression<String>("title")
   private let descriptionColumn = Expression<String>("description")
   private let doneAtColumn = Expression<String>("doneAt")
-  private let subtasksColumn = Expression<String>("subtaks")
+  private let subtasksColumn = Expression<String>("subtasks")
   
   private let createdAtColumn = Expression<String>("created_at")
   private let updatedAtColumn = Expression<String>("updated_at")
@@ -182,6 +182,7 @@ class SQLiteRepository {
         titleColumn <- task.title,
         doneAtColumn <- task.isDone ? SQLiteRepository.getStringDate(): "",
         descriptionColumn <- task.description,
+        subtasksColumn <- "",
         createdAtColumn <- SQLiteRepository.getStringDate(),
         updatedAtColumn <- SQLiteRepository.getStringDate()
       )
@@ -193,14 +194,22 @@ class SQLiteRepository {
     }
   }
   
+  func addSubtask(task: Task, subtask: Task, position: Int){
+    updateSubtasks(task: task)
+  }
+  
   func updateSubtasks(task: Task){
-    let subtasksString = task.subtasks
-      .map { $0.id.uuidString }
-      .joined(separator: ",")
+    var subtasksString = ""
+    if !task.subtasks.isEmpty {
+      subtasksString = task.subtasks
+        .map { $0.id.uuidString }
+        .joined(separator: ",")
+    }
+    
     do {
       let update = tasksTable
         .filter(idColumn == task.id.uuidString)
-        .update(subtasksColumn <- task.title,
+        .update(subtasksColumn <- subtasksString,
                 updatedAtColumn <- SQLiteRepository.getStringDate())
       try db.run(update)
       print("Lista de subtarefas atualizada")
