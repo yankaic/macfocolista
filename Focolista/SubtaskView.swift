@@ -48,15 +48,17 @@ struct SubtaskView: View {
           if isFocused {
             onStartEdit()
           } else {
-            if task.title != title {
-              task.title = title
-              if !task.isPersisted {
-                onCommitNewTask()
-              } else {
-                task.saveTitle()
-              }
-            }
             onFinishEdit()
+          }
+        }
+        .onChange(of: title){
+          if (title != task.title) {
+            task.title = title
+            if !task.isPersisted {
+              onCommitNewTask()
+            } else {
+              task.saveTitle()
+            }
           }
         }
         .textFieldStyle(.plain)

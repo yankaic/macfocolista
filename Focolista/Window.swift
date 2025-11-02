@@ -22,7 +22,7 @@ struct Window: View {
     NavigationStack {
       VStack(spacing: 0) {
         List(selection: $selection) {
-          NotesEditor(text: $description)
+          NotesEditor(text: $description, task: $task)
             .listRowSeparator(.hidden) //  remove o separador abaixo
           ForEach($subtasks, id: \.id) { $subtask in
             SubtaskView(

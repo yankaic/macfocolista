@@ -17,6 +17,7 @@ class Task {
   
   var isPersisted: Bool
   private var waitingSaveDescription: Bool = false
+  private var waitingSaveTitle: Bool = false
   
   private static var repository: MemoryRepository = MemoryRepository()
   private static var navigationStack: [Task] = []
@@ -106,7 +107,13 @@ class Task {
   }
   
   func saveTitle() {
-    Task.repository.rename(task: self)
+    if (!self.waitingSaveTitle) {
+      self.waitingSaveTitle = true
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        Task.repository.rename(task: self)
+        self.waitingSaveTitle = false
+      }
+    }
   }
   
   func saveMark() {
