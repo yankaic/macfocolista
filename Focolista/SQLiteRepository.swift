@@ -104,6 +104,11 @@ class SQLiteRepository {
         .split(separator: "\n")
         .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         .compactMap(UUID.init) // mantém apenas UUIDs válidos
+        .reduce(into: [UUID]()) { unique, id in
+          if !unique.contains(id) {
+            unique.append(id)
+          }
+        }
       
       let subtasks = subtaskIDs.map { Task(id: $0) }
       
