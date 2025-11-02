@@ -20,6 +20,9 @@ struct NotesEditor: View {
               .onAppear {
                 dynamicHeight = geometry.size.height
               }
+              .onChange(of: geometry.size) {
+                dynamicHeight = geometry.size.height + paddingTextEditor
+              }
               .onChange(of: text) {
                 dynamicHeight = geometry.size.height + paddingTextEditor
                 task.description = text
