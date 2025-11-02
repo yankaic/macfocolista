@@ -101,7 +101,7 @@ class SQLiteRepository {
       
       // Processa os identificadores das subtarefas (se houver)
       let subtaskIDs = row[subtasksColumn]
-        .split(separator: ",")
+        .split(separator: "\n")
         .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         .compactMap(UUID.init) // mantém apenas UUIDs válidos
       
@@ -157,7 +157,7 @@ class SQLiteRepository {
         
         // Processa subtarefas (somente IDs)
         let subtaskIDs = row[subtasksColumn]
-          .split(separator: ",")
+          .split(separator: "\n")
           .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
           .compactMap(UUID.init)
         
@@ -203,7 +203,7 @@ class SQLiteRepository {
     if !task.subtasks.isEmpty {
       subtasksString = task.subtasks
         .map { $0.id.uuidString }
-        .joined(separator: ",")
+        .joined(separator: "\n")
     }
     
     do {

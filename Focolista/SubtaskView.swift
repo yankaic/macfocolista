@@ -50,7 +50,7 @@ struct SubtaskView: View {
           } else {
             if task.title != title {
               task.title = title
-              if task.isPersisted {
+              if !task.isPersisted {
                 onCommitNewTask()
               } else {
                 task.saveTitle()

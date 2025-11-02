@@ -50,8 +50,8 @@ struct Window: View {
                 selection = []
               },
               onCommitNewTask: {
-                if let index = subtasks.firstIndex(where: { $0.id == subtask.id }) {
-                  task.addSubtask(subtask: subtask, position: index + 1)
+                if let position = subtasks.firstIndex(where: { $0.id == subtask.id }) {
+                  task.addSubtask(subtask: subtask, position: position)
                 }
               },
               onToggleComplete: { newCompletedValue in

@@ -101,7 +101,7 @@ class Task {
   }
   
   func addSubtask(subtask: Task, position: Int) {
-    subtasks.append(subtask)
+    subtasks.insert(subtask, at: position)
     Task.repository.addSubtask(task: self, subtask: subtask, position: position)
   }
   
