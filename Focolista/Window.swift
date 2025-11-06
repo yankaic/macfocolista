@@ -92,7 +92,8 @@ struct Window: View {
       self.task = Task.getNavigation().last!
       print("Tarefa carregada: " + self.task.title)
       windowTitle = self.task.title
-      description = self.task.description      
+      description = self.task.description
+      task.loadSubtasks()
       subtasks = task.subtasks
     }
     .background(Color(NSColor.controlBackgroundColor))

@@ -62,43 +62,40 @@ class Task {
     print(id.uuidString)
     Task.repository.save(newtask: self)
   }
+
   
-  
-  static func load(id: UUID) -> Task? {
-    let task: Task? = Task.repository.load(taskId: id)
-    if (task == nil){
-      return nil
+  /// Carrega a pilha de navegação de tarefas armazenada nas preferências do usuário.
+  ///
+  /// Este método obtém a lista de identificadores inteiros salvos em `UserDefaults` sob a chave `"navigationStack"`.
+  /// Cada identificador é mapeado para um `UUID`, que é então associado ao repositório de tarefas.
+  /// Caso não exista uma pilha armazenada, a lista é inicializada com o identificador `1`.
+  ///
+  /// - Returns: A lista de tarefas correspondente à pilha de navegação atual.
+  static func getNavigation() -> [Task] {
+    print("Carregando pilha de navegação...")
+    
+    // Retorna imediatamente se já estiver carregada
+    if !Task.navigationStack.isEmpty {
+      return Task.navigationStack
     }
-    return task
+    
+    // Obtém a lista de IDs inteiros salvos nas preferências
+    let ids = UserDefaults.standard.array(forKey: "navigationStack") as? [Int] ?? [1]
+    
+    // Cria o mapeamento UUID <-> Int
+    Task.navigationStack = ids.map { intID in
+      let uuid = UUID()
+      Task.repository.map(uuid: uuid, int: intID)
+      return Task(id: uuid)
+    }
+    
+    // Carregando as tarefas da pilha de navegação
+    Task.repository.refreshUnpersistedTasks(tasks: Task.navigationStack)    
+    return Task.navigationStack
   }
   
-  static func getNavigation() -> [Task] {
-    print("Solicitada a informação da navegação")
-    
-    if Task.navigationStack.isEmpty {
-      if let ids = UserDefaults.standard.stringArray(forKey: "navigationStack") {
-        let tasks = ids.compactMap { idString -> Task? in
-          guard let uuid = UUID(uuidString: idString) else { return nil }
-          return Task.load(id: uuid)
-        }
-        Task.navigationStack = tasks
-      }
-    }
-    
-    if Task.navigationStack.isEmpty {
-      print("Tratamento da lista vazia de navegação. Inserindo um item padrão (home)")
-      if let homeIdString = UserDefaults.standard.string(forKey: "homeTask"),
-         let homeId = UUID(uuidString: homeIdString),
-         let home = Task.load(id: homeId) {
-        Task.navigationStack.append(home)
-      } else {
-        let taskFake = Task(title: "Tarefa fake")
-        Task.navigationStack.append(taskFake)
-        print("⚠️ Nenhuma tarefa 'home' encontrada no banco ou no UserDefaults.")
-      }
-    }
-    
-    return Task.navigationStack
+  func loadSubtasks(){
+    Task.repository.refreshUnpersistedTasks(tasks: subtasks)
   }
   
   func addSubtask(subtask: Task, position: Int) {

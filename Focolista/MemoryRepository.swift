@@ -14,20 +14,6 @@ class MemoryRepository {
     print("Inicializando o Memory Repository")
   }
   
-  /// Carrega uma tarefa isolada
-  func load(taskId: UUID) -> Task? {
-    if let cached = cache[taskId] {
-      return cached
-    }
-    if let task = sqlite.load(taskId: taskId) {
-      cache[task.id] = task
-      configureSubtasks(for: task)
-      refreshUnpersistedTasks(tasks: task.subtasks)
-      return task
-    }
-    return nil
-  }
-  
   /// Atualiza a lista de subtarefas de uma tarefa, mesclando com o cache existente.
   ///
   /// - Para cada subtarefa:
@@ -85,6 +71,10 @@ class MemoryRepository {
   func updateDescription(task: Task){
     sqlite.updateDescription(task: task)
     print("Salvando descrição às: " + DateFormatter().string(from: Date()))
+  }
+  
+  func map(uuid: UUID, int: Int){
+    sqlite.mapping.save(uuid: uuid, int: int)
   }
   
 }
