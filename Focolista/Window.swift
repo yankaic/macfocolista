@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct Window: View {
-  @State private var task: Task = Task(title: "Linha inicial")
+  @State private var task: Task? = nil
   @State private var subtasks: [Task] = []
   
   @State private var selection = Set<UUID>()
   @State private var windowTitle: String = "Focolista"
   @State private var description: String = ""
+  @State private var navigation: [Task] = []
   
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
@@ -27,6 +28,7 @@ struct Window: View {
           ForEach($subtasks, id: \.id) { $subtask in
             SubtaskView(
               onEnterSubtask: {
+                navigation.append(self.task!)
                 enter(task: subtask)
               },
               onFinishEdit: {
@@ -51,7 +53,7 @@ struct Window: View {
               },
               onCommitNewTask: {
                 if let position = subtasks.firstIndex(where: { $0.id == subtask.id }) {
-                  task.addSubtask(subtask: subtask, position: position)
+                  task!.addSubtask(subtask: subtask, position: position)
                 }
               },
               onToggleComplete: { newCompletedValue in
@@ -97,8 +99,12 @@ struct Window: View {
     .toolbar {
       ToolbarItem(placement: .navigation) {
         Button {
-          // back button action
-          self.windowTitle = "Focolista"
+          if !navigation.isEmpty {
+            let parent = navigation.popLast()!
+            let last = self.task
+            enter(task: parent)
+            selection = [last!.id]
+          }
         } label: {
           Image(systemName: "chevron.left")
         }

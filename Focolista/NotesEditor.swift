@@ -2,7 +2,7 @@ import SwiftUI
 
 struct NotesEditor: View {
   @Binding var text: String
-  @Binding var task: Task
+  @Binding var task: Task?
   let paddingTextEditor: CGFloat = 8
   @State private var dynamicHeight: CGFloat = 0  // initial estimated height for a single line
   
@@ -25,8 +25,8 @@ struct NotesEditor: View {
               }
               .onChange(of: text) {
                 dynamicHeight = geometry.size.height + paddingTextEditor
-                task.description = text
-                task.saveDescription()
+                task?.description = text
+                task?.saveDescription()
               }
           }
         )
