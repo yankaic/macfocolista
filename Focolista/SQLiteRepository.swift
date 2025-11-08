@@ -16,21 +16,19 @@ class SQLiteRepository {
   
   private let tasksTable = Table("tasks")
   private let subtasksTable = Table("edge")
-  private let summaryTable = Table("summary")
   
   private let idColumn = Expression<Int>("id")
   private let titleColumn = Expression<String>("title")
   private let descriptionColumn = Expression<String?>("description")
   private let doneAtColumn = Expression<String?>("completed_at")
-  private let subtasksColumn = Expression<String?>("subtasks")
     
   private let parentIdColumn = Expression<Int>("parent_id")
-  private let subtaskIdColumn = Expression<Int>("subtask_id")
+  private let subtaskIdColumn = Expression<Int>("child_id")
   private let positionColumn = Expression<Int>("position")
   
   private let createdAtColumn = Expression<String>("created_at")
   private let updatedAtColumn = Expression<String>("updated_at")
-  private let deletedAtColumn = Expression<String>("deleted_at")
+  private let deletedAtColumn = Expression<String?>("deleted_at")
   
   init() {
     print("Inicializando o SQLite Repository")
@@ -74,7 +72,7 @@ class SQLiteRepository {
       table.column(updatedAtColumn)
     })
     try db.run("""
-      CREATE TABLE IF NOT EXISTS subtasks (
+      CREATE TABLE IF NOT EXISTS edge (
         parent_id INTEGER NOT NULL,
         subtask_id INTEGER NOT NULL,
         position INTEGER NOT NULL,
@@ -114,7 +112,7 @@ class SQLiteRepository {
   /// enquanto as subtarefas são recuperadas parcialmente (apenas seus identificadores).
   ///
   /// - Parameter tasks: Lista de tarefas que serão atualizadas in-place.
-  func refresh(tasks: [Task]) {
+  /*func refresh(tasks: [Task]) {
     guard !tasks.isEmpty else { return }
     
     do {
@@ -152,6 +150,62 @@ class SQLiteRepository {
       print("Erro ao atualizar lista de tarefas: \(error)")
     }
   }
+   */
+  
+  /// Atualiza os atributos de uma lista de tarefas existentes com os dados mais recentes do banco de dados.
+  ///
+  /// Este método recebe uma lista mutável de `Task` e atualiza seus atributos com base
+  /// nas informações armazenadas no banco. Somente os campos principais são carregados,
+  /// enquanto as subtarefas são recuperadas parcialmente (apenas seus identificadores).
+  ///
+  /// - Parameter tasks: Lista de tarefas que serão atualizadas in-place.
+  func refresh(tasks: [Task]) {
+    guard !tasks.isEmpty else { return }
+    
+    var taskMap: [Int: Task] = [:]
+    
+    let intIDs = tasks.map { task in
+      let id: Int = mapping.find(uuid: task.id)
+      taskMap[id] = task
+      return id
+    }
+    
+    // Dicionário para mapear tarefas principais
+    do {
+      let taskQuery = tasksTable.filter(intIDs.contains(idColumn))
+      
+      for row in try db.prepare(taskQuery) {
+        let task = taskMap[row[idColumn]]!
+        task.title = row[titleColumn]
+        task.description = row[descriptionColumn] ?? ""
+        task.isDone = row[doneAtColumn] != nil
+        task.isPersisted = true
+      }
+    
+      
+      let subtasksQuery = subtasksTable
+        .join(tasksTable, on: subtaskIdColumn == tasksTable[idColumn])
+        .filter(intIDs.contains(parentIdColumn) && deletedAtColumn == nil)
+        .order(parentIdColumn, positionColumn)
+      
+      for row in try db.prepare(subtasksQuery) {
+        let parentId = row[parentIdColumn]
+        let childId = row[subtaskIdColumn]
+        
+        guard let task = taskMap[parentId] else { continue }
+        
+        let subtask = Task(id: mapping.find(int: childId))
+        subtask.title = row[tasksTable[titleColumn]]
+        subtask.description = row[tasksTable[descriptionColumn]] ?? ""
+        subtask.isDone = row[tasksTable[doneAtColumn]] != nil
+        
+        task.subtasks.append(subtask)
+      }
+    } catch {
+      print("Erro ao atualizar lista de tarefas: \(error)")
+    }
+  }
+
   
   func insert(newtask task: Task) {
     do {
