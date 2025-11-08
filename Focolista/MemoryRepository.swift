@@ -34,17 +34,38 @@ class MemoryRepository {
   /// Atualiza do banco todas as tarefas do cache que ainda não foram persistidas.
   /// Após o carregamento, suas subtarefas são reconfiguradas para garantir
   /// que as referências usem as instâncias do cache.
-  func refreshUnpersistedTasks(tasks: [Task]) {
-    // Filtra apenas as tarefas ainda não persistidas
-    let unpersisted = tasks.filter { !$0.isPersisted }
-    guard !unpersisted.isEmpty else { return }
+  func load(ids: [Int]) -> [Task] {
     
     // Atualiza as tarefas a partir do banco de dados
-    sqlite.refresh(tasks: unpersisted)
-    
-    // Reconfigura as subtarefas com base no cache atualizado
-    unpersisted.forEach { task in
+    let tasks = sqlite.load(ids: ids)
+    sqlite.loadSubtasks(tasks: tasks)
+        
+    tasks.forEach { task in
+      cache[task.id] = task
       configureSubtasks(for: task)
+    }
+    return tasks
+  }
+  
+  func loadSubtasks(task: Task) {
+    guard !task.isSubtasksLoaded else { return }
+    sqlite.loadSubtasks(tasks: [task])
+    configureSubtasks(for: task)
+  }
+  
+  func loadSubtasksLevel2(task: Task) {
+    if (!task.isSubtasksLoaded) {
+      loadSubtasks(task: task)
+    }
+    
+    let subtasks : [Task] = task.subtasks
+      .filter { $0.isSubtasksLoaded }
+    
+    if subtasks.isEmpty { return }
+    
+    sqlite.loadSubtasks(tasks: subtasks)
+    subtasks.forEach { subtask in
+      configureSubtasks(for: subtask)
     }
   }
   

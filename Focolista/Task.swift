@@ -16,6 +16,8 @@ class Task {
   var onMark: [(Bool) -> Void] = []
   
   var isPersisted: Bool
+  var isSubtasksLoaded: Bool = false
+  
   private var waitingSaveDescription: Bool = false
   private var waitingSaveTitle: Bool = false
   
@@ -83,19 +85,12 @@ class Task {
     let ids = UserDefaults.standard.array(forKey: "navigationStack") as? [Int] ?? [1]
     
     // Cria o mapeamento UUID <-> Int
-    Task.navigationStack = ids.map { intID in
-      let uuid = UUID()
-      Task.repository.map(uuid: uuid, int: intID)
-      return Task(id: uuid)
-    }
-    
-    // Carregando as tarefas da pilha de navegação
-    Task.repository.refreshUnpersistedTasks(tasks: Task.navigationStack)    
+    Task.navigationStack = Task.repository.load(ids: ids)
     return Task.navigationStack
   }
   
   func loadSubtasks(){
-    Task.repository.refreshUnpersistedTasks(tasks: subtasks)
+    Task.repository.loadSubtasksLevel2(task: self)
   }
   
   func addSubtask(subtask: Task, position: Int) {

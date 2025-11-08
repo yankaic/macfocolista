@@ -152,14 +152,37 @@ class SQLiteRepository {
   }
    */
   
-  /// Atualiza os atributos de uma lista de tarefas existentes com os dados mais recentes do banco de dados.
-  ///
-  /// Este método recebe uma lista mutável de `Task` e atualiza seus atributos com base
-  /// nas informações armazenadas no banco. Somente os campos principais são carregados,
-  /// enquanto as subtarefas são recuperadas parcialmente (apenas seus identificadores).
-  ///
-  /// - Parameter tasks: Lista de tarefas que serão atualizadas in-place.
-  func refresh(tasks: [Task]) {
+  func load(ids: [Int]) -> [Task] {
+    var tasks: [Task] = []
+    guard !ids.isEmpty else { return tasks }
+    
+    var taskMap: [Int: Task] = [:]
+    
+    tasks = ids.map { id in
+      let uuid = mapping.find(int: id)
+      let task = Task(id: uuid)
+      taskMap[id] = task
+      return task
+    }
+    
+    // Dicionário para mapear tarefas principais
+    do {
+      let taskQuery = tasksTable.filter(ids.contains(idColumn))
+      
+      for row in try db.prepare(taskQuery) {
+        let task = taskMap[row[idColumn]]!
+        task.title = row[titleColumn]
+        task.description = row[descriptionColumn] ?? ""
+        task.isDone = row[doneAtColumn] != nil
+        task.isPersisted = true
+      }
+    } catch {
+      print("Erro ao atualizar lista de tarefas: \(error)")
+    }
+    return tasks
+  }
+  
+  func loadSubtasks(tasks: [Task]) {
     guard !tasks.isEmpty else { return }
     
     var taskMap: [Int: Task] = [:]
@@ -169,20 +192,7 @@ class SQLiteRepository {
       taskMap[id] = task
       return id
     }
-    
-    // Dicionário para mapear tarefas principais
     do {
-      let taskQuery = tasksTable.filter(intIDs.contains(idColumn))
-      
-      for row in try db.prepare(taskQuery) {
-        let task = taskMap[row[idColumn]]!
-        task.title = row[titleColumn]
-        task.description = row[descriptionColumn] ?? ""
-        task.isDone = row[doneAtColumn] != nil
-        task.isPersisted = true
-      }
-    
-      
       let subtasksQuery = subtasksTable
         .join(tasksTable, on: subtaskIdColumn == tasksTable[idColumn])
         .filter(intIDs.contains(parentIdColumn) && deletedAtColumn == nil)
@@ -200,12 +210,12 @@ class SQLiteRepository {
         subtask.isDone = row[tasksTable[doneAtColumn]] != nil
         
         task.subtasks.append(subtask)
+        task.isSubtasksLoaded = true
       }
     } catch {
       print("Erro ao atualizar lista de tarefas: \(error)")
     }
   }
-
   
   func insert(newtask task: Task) {
     do {
