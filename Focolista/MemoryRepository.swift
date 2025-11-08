@@ -59,7 +59,9 @@ class MemoryRepository {
     }
     
     let subtasks : [Task] = task.subtasks
-      .filter { $0.isSubtasksLoaded }
+      .filter { return !$0.isSubtasksLoaded }
+    
+    print("quantidade de subtarefas \(subtasks.count)")
     
     if subtasks.isEmpty { return }
     

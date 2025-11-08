@@ -82,7 +82,7 @@ class Task {
     }
     
     // Obtém a lista de IDs inteiros salvos nas preferências
-    let ids = UserDefaults.standard.array(forKey: "navigationStack") as? [Int] ?? [1]
+    let ids = [1]
     
     // Cria o mapeamento UUID <-> Int
     Task.navigationStack = Task.repository.load(ids: ids)
@@ -90,6 +90,7 @@ class Task {
   }
   
   func loadSubtasks(){
+    print("Carregando subtarefas")
     Task.repository.loadSubtasksLevel2(task: self)
   }
   
