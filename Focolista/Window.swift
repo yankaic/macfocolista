@@ -27,7 +27,7 @@ struct Window: View {
           ForEach($subtasks, id: \.id) { $subtask in
             SubtaskView(
               onEnterSubtask: {
-                windowTitle = subtask.title
+                enter(task: subtask)
               },
               onFinishEdit: {
                 if subtask.title.isEmpty {
@@ -89,12 +89,8 @@ struct Window: View {
     .onAppear {
       print(Task(title: "Tarefa vazia só para iniciar").title)
       print("Método chamado ao iniciar a janela. É aqui que a tarefa deve ser carregada.")
-      self.task = Task.getNavigation().last!
-      print("Tarefa carregada: " + self.task.title)
-      windowTitle = self.task.title
-      description = self.task.description
-      task.loadSubtasks()
-      subtasks = task.subtasks
+      let task = Task.getNavigation().last!
+      enter(task: task)
     }
     .background(Color(NSColor.controlBackgroundColor))
     .navigationTitle(windowTitle)
@@ -108,6 +104,15 @@ struct Window: View {
         }
       }
     }
+  }
+  
+  private func enter(task: Task) {
+    self.task = task
+    print("Tarefa carregada: " + task.title)
+    windowTitle = task.title
+    description = task.description
+    task.loadSubtasks()
+    subtasks = task.subtasks
   }
   private func move(from source: IndexSet, to destination: Int) {
     subtasks.move(fromOffsets: source, toOffset: destination)
