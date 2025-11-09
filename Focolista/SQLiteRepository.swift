@@ -205,10 +205,16 @@ class SQLiteRepository {
         
         guard let task = taskMap[parentId] else { continue }
         
+        
         let subtask = Task(id: mapping.find(int: childId))
+        
+        if task.subtasks.firstIndex(where: { $0.id == subtask.id }) != nil {
+          continue
+        }
         subtask.title = row[tasksTable[titleColumn]]
         subtask.description = row[tasksTable[descriptionColumn]] ?? ""
         subtask.isDone = row[tasksTable[doneAtColumn]] != nil
+        subtask.isPersisted = true
         
         task.subtasks.append(subtask)
       }
@@ -222,7 +228,7 @@ class SQLiteRepository {
       let insert = tasksTable.insert(
         idColumn <- mapping.find(uuid: task.id),
         titleColumn <- task.title,
-        doneAtColumn <- task.isDone ? SQLiteRepository.getStringDate(): "",
+        doneAtColumn <- task.isDone ? SQLiteRepository.getStringDate(): nil,
         descriptionColumn <- task.description,
         createdAtColumn <- SQLiteRepository.getStringDate(),
         updatedAtColumn <- SQLiteRepository.getStringDate()
@@ -243,8 +249,8 @@ class SQLiteRepository {
         parentIdColumn <- mapping.find(uuid: task.id),
         subtaskIdColumn <- mapping.find(uuid: subtask.id),
         positionColumn <- position,
-        createdAtColumn <- SQLiteRepository.getStringDate(),
-        updatedAtColumn <- SQLiteRepository.getStringDate()
+        updatedAtColumn <- SQLiteRepository.getStringDate(),
+        deletedAtColumn <- nil
       )
       try db.run(insert)
       print("Criando nova tarefa: \(task.title)")
@@ -293,7 +299,7 @@ class SQLiteRepository {
   
   func updateDone(task: Task){
     do {
-      let doneAt = task.isDone ? SQLiteRepository.getStringDate(): ""
+      let doneAt = task.isDone ? SQLiteRepository.getStringDate(): nil
       let update = tasksTable
         .filter(idColumn == mapping.find(uuid: task.id))
         .update(doneAtColumn <- doneAt,
