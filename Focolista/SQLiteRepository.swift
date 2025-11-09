@@ -189,7 +189,8 @@ class SQLiteRepository {
     
     let intIDs = tasks.map { task in
       let id: Int = mapping.find(uuid: task.id)
-      taskMap[id] = task
+      taskMap[id] = task      
+      task.isSubtasksLoaded = true
       return id
     }
     do {
@@ -210,7 +211,6 @@ class SQLiteRepository {
         subtask.isDone = row[tasksTable[doneAtColumn]] != nil
         
         task.subtasks.append(subtask)
-        task.isSubtasksLoaded = true
       }
     } catch {
       print("Erro ao atualizar lista de tarefas: \(error)")
