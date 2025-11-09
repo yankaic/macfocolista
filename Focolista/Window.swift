@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+final class WindowViewModel: ObservableObject {
+  @Published var navigation: [Task] = []
+}
+
 struct Window: View {
   @State private var task: Task? = nil
   @State private var subtasks: [Task] = []
@@ -14,7 +18,8 @@ struct Window: View {
   @State private var selection = Set<UUID>()
   @State private var windowTitle: String = "Focolista"
   @State private var description: String = ""
-  @State private var navigation: [Task] = []
+  
+  @ObservedObject var viewModel: WindowViewModel
   
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
@@ -28,7 +33,7 @@ struct Window: View {
           ForEach($subtasks, id: \.id) { $subtask in
             SubtaskView(
               onEnterSubtask: {
-                navigation.append(self.task!)
+                viewModel.navigation.append(self.task!)
                 enter(task: subtask)
               },
               onFinishEdit: {
@@ -104,8 +109,8 @@ struct Window: View {
     .toolbar {
       ToolbarItem(placement: .navigation) {
         Button {
-          if !navigation.isEmpty {
-            let parent = navigation.popLast()!
+          if !viewModel.navigation.isEmpty {
+            let parent = viewModel.navigation.popLast()!
             let last = self.task
             enter(task: parent)
             selection = [last!.id]

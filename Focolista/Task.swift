@@ -89,6 +89,10 @@ class Task {
     return Task.navigationStack
   }
   
+  static func saveNavigation(stack: [Task]) {
+    Task.repository.saveNavigation(stack: stack)
+  }
+  
   func loadSubtasks(){
     print("Carregando subtarefas")
     Task.repository.loadSubtasksLevel2(task: self)

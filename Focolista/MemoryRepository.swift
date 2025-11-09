@@ -105,4 +105,8 @@ class MemoryRepository {
     sqlite.mapping.save(uuid: uuid, int: int)
   }
   
+  func saveNavigation(stack: [Task]) {
+    sqlite.saveNavigation(stack: stack)
+  }
+  
 }

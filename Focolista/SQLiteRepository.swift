@@ -16,6 +16,7 @@ class SQLiteRepository {
   
   private let tasksTable = Table("tasks")
   private let subtasksTable = Table("edge")
+  private let stackTable = Table("stack")
   
   private let idColumn = Expression<Int>("id")
   private let titleColumn = Expression<String>("title")
@@ -23,6 +24,7 @@ class SQLiteRepository {
   private let doneAtColumn = Expression<String?>("completed_at")
     
   private let parentIdColumn = Expression<Int>("parent_id")
+  private let taskIdColumn = Expression<Int>("task_id")
   private let subtaskIdColumn = Expression<Int>("child_id")
   private let positionColumn = Expression<Int>("position")
   
@@ -359,6 +361,28 @@ class SQLiteRepository {
     }
     catch {
       print("Erro ao atualizar descrição: \(error)")
+    }
+  }
+  
+  func saveNavigation(stack: [Task]) {
+    do{
+      try db.transaction {
+        let delete = stackTable.delete()
+        try db.run(delete)
+                
+        // Atualiza as posições de todas as subtarefas na tabela "edge"
+        for (position, task) in stack.enumerated() {
+          let update = stackTable.insert(
+            taskIdColumn <- mapping.find(uuid: task.id),
+            idColumn <- position + 1
+          )
+          try db.run(update)
+          print("Conseguiu gravar a navegação")
+        }
+      }
+    }
+    catch {
+      print ("Não conseguiu atualizar a pilha de navegação")
     }
   }
 }

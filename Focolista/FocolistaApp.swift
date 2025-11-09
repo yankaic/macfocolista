@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct FocolistaApp: App {
+  @StateObject private var windowVM = WindowViewModel()
   var body: some Scene {
     WindowGroup {
-      Window()
+      Window(viewModel: windowVM)
         .onWindowAvailable { win in
           guard let win = win else { return }
           //self.window = win
@@ -26,6 +27,7 @@ struct FocolistaApp: App {
             queue: .main
           ) { _ in
             saveWindowFrame(for: win)
+            Task.saveNavigation(stack: windowVM.navigation)
           }
         }
     }
@@ -42,8 +44,6 @@ func saveWindowFrame(for window: NSWindow) {
   ]
   print("Fechando programa e salvando informações")
   UserDefaults.standard.set(dict, forKey: "janelaPrincipal.frame")
-  let navigation = Task.getNavigation().map{ task in task.id.uuidString }
-  UserDefaults.standard.set(navigation, forKey: "navigationStack")
 }
 
 func loadWindowFrame(for window: NSWindow) {
