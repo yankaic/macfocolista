@@ -99,6 +99,10 @@ class Task {
     Task.repository.addSubtask(task: self, subtask: subtask, position: position)
   }
   
+  func getCounterText() -> String{
+    return "(\(subtasks.filter{ $0.isDone }.count)/\(subtasks.count))"
+  }
+  
   func saveTitle() {
     if (!self.waitingSaveTitle) {
       self.waitingSaveTitle = true

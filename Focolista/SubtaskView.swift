@@ -17,6 +17,8 @@ struct SubtaskView: View {
 
   @Binding var task: Task
   @State private var title: String = ""
+  @State private var counter: String = "(0/0)"
+  @State private var showCounter: Bool = false
   @State private var isDone: Bool = false
   @FocusState private var isFocused: Bool
 
@@ -65,6 +67,8 @@ struct SubtaskView: View {
         .onAppear {
           title = task.title
           isDone = task.isDone
+          counter = task.getCounterText()
+          showCounter = !task.subtasks.isEmpty
 
           task.onMark.append( { value in
             isDone = value
@@ -73,6 +77,11 @@ struct SubtaskView: View {
         }
 
       Spacer()
+      
+      if showCounter {
+        Text(counter)
+          .opacity(0.35)
+      }      
 
       Button(action: {
         onEnterSubtask()
