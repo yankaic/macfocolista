@@ -260,6 +260,43 @@ class SQLiteRepository {
     }
   }
   
+  /// Reorganiza as posições das subtarefas de uma tarefa no banco de dados.
+  ///
+  /// Este método atualiza a posição (`position`) das subtarefas associadas a uma tarefa,
+  /// refletindo a nova ordem definida na interface. As alterações são feitas dentro de uma
+  /// transação SQLite para garantir consistência e performance.
+  ///
+  /// - Parameters:
+  ///   - task: A tarefa mãe cujas subtarefas terão a posição atualizada.
+  ///   - source: O conjunto de índices das subtarefas movidas.
+  ///   - destination: O índice de destino para onde as subtarefas foram movidas.
+  ///
+  /// - Note: Este método assume que `task.subtasks` já foi reorganizada em memória,
+  ///         por exemplo, através de `move(fromOffsets:toOffset:)` da API SwiftUI.
+  ///         Ele apenas sincroniza a nova ordem com o banco de dados.
+  ///
+  func move(task: Task, from source: IndexSet, to destination: Int) {
+    do {
+      // Inicia uma transação para garantir atomicidade
+      try db.transaction {
+        let parentID = mapping.find(uuid: task.id)
+        
+        // Atualiza as posições de todas as subtarefas na tabela "edge"
+        for (newPosition, subtask) in task.subtasks.enumerated() {
+          let update = subtasksTable
+            .filter(parentIdColumn == parentID && subtaskIdColumn == mapping.find(uuid: subtask.id))
+            .update(positionColumn <- newPosition + 1)
+          try db.run(update)
+        }
+      }
+      
+      print("Reordenação concluída para a tarefa \(task.id)")
+      
+    } catch {
+      print("Erro ao reordenar subtarefas da tarefa \(task.id): \(error)")
+    }
+  }
+  
   /* 
   func updateSubtasks(task: Task){
     var subtasksString = ""

@@ -75,6 +75,11 @@ class MemoryRepository {
     save(newtask: subtask)
     sqlite.addSubtask(task: task, subtask: subtask, position: position)
   }
+  
+
+  func move(task: Task, from source: IndexSet, to destination: Int){
+    sqlite.move(task: task, from: source, to: destination)
+  }
 
   func save(newtask task: Task) {
     if (!task.isPersisted) {

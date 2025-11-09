@@ -53,7 +53,12 @@ struct Window: View {
               },
               onCommitNewTask: {
                 if let position = subtasks.firstIndex(where: { $0.id == subtask.id }) {
-                  task!.addSubtask(subtask: subtask, position: position)
+                  if(position == (subtasks.count - 1)){
+                    task?.addSubtask(subtask: subtask)
+                  }
+                  else {
+                    task?.addSubtask(subtask: subtask, position: position)
+                  }
                 }
               },
               onToggleComplete: { newCompletedValue in
@@ -122,5 +127,6 @@ struct Window: View {
   }
   private func move(from source: IndexSet, to destination: Int) {
     subtasks.move(fromOffsets: source, toOffset: destination)
+    self.task?.move(from: source, to: destination)
   }
 }

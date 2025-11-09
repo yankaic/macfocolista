@@ -97,6 +97,17 @@ class Task {
   func addSubtask(subtask: Task, position: Int) {
     subtasks.insert(subtask, at: position)
     Task.repository.addSubtask(task: self, subtask: subtask, position: position)
+    Task.repository.move(task: self, from: IndexSet(integer: subtasks.count), to: position)    
+  }
+  
+  func addSubtask(subtask: Task) {
+    subtasks.append(subtask)
+    Task.repository.addSubtask(task: self, subtask: subtask, position: subtasks.count)
+  }
+  
+  func move(from source: IndexSet, to destination: Int){
+    subtasks.move(fromOffsets: source, toOffset: destination)
+    Task.repository.move(task: self, from: source, to: destination)
   }
   
   func getCounterText() -> String{
