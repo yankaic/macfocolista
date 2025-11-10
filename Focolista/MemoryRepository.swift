@@ -109,4 +109,11 @@ class MemoryRepository {
     sqlite.saveNavigation(stack: stack)
   }
   
+  func loadNavigation() -> [Task] {
+    var ids = sqlite.loadNavigation()
+    if ids.isEmpty {
+      ids = [1]
+    }
+    return load(ids: ids)
+  }
 }

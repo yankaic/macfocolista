@@ -385,5 +385,18 @@ class SQLiteRepository {
       print ("Não conseguiu atualizar a pilha de navegação")
     }
   }
+  
+  func loadNavigation() -> [Int] {
+    do {
+      var ids : [Int] = []
+      for row in try db.prepare(stackTable) {
+        ids.append(try row.get(taskIdColumn))
+      }
+      return ids
+    } catch {
+      print("deu algum erro no carregamento da navegação")
+      return [1]
+    }
+  }
 }
 

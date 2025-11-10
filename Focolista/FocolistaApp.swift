@@ -9,10 +9,11 @@ import SwiftUI
 
 @main
 struct FocolistaApp: App {
-  @StateObject private var windowVM = WindowViewModel()
+  @State private var navigation : [Task] = Task.loadNavigation()
+  
   var body: some Scene {
     WindowGroup {
-      Window(viewModel: windowVM)
+      Window(navigation: $navigation)
         .onWindowAvailable { win in
           guard let win = win else { return }
           //self.window = win
@@ -27,7 +28,7 @@ struct FocolistaApp: App {
             queue: .main
           ) { _ in
             saveWindowFrame(for: win)
-            Task.saveNavigation(stack: windowVM.navigation)
+            Task.saveNavigation(stack: navigation)
           }
         }
     }

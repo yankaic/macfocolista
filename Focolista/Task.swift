@@ -22,7 +22,6 @@ class Task {
   private var waitingSaveTitle: Bool = false
   
   private static var repository: MemoryRepository = MemoryRepository()
-  private static var navigationStack: [Task] = []
   
   init() {
     self.id = UUID()
@@ -65,28 +64,9 @@ class Task {
     Task.repository.save(newtask: self)
   }
 
-  
-  /// Carrega a pilha de navegação de tarefas armazenada nas preferências do usuário.
-  ///
-  /// Este método obtém a lista de identificadores inteiros salvos em `UserDefaults` sob a chave `"navigationStack"`.
-  /// Cada identificador é mapeado para um `UUID`, que é então associado ao repositório de tarefas.
-  /// Caso não exista uma pilha armazenada, a lista é inicializada com o identificador `1`.
-  ///
-  /// - Returns: A lista de tarefas correspondente à pilha de navegação atual.
-  static func getNavigation() -> [Task] {
+  static func loadNavigation() -> [Task] {
     print("Carregando pilha de navegação...")
-    
-    // Retorna imediatamente se já estiver carregada
-    if !Task.navigationStack.isEmpty {
-      return Task.navigationStack
-    }
-    
-    // Obtém a lista de IDs inteiros salvos nas preferências
-    let ids = [1]
-    
-    // Cria o mapeamento UUID <-> Int
-    Task.navigationStack = Task.repository.load(ids: ids)
-    return Task.navigationStack
+    return Task.repository.loadNavigation()
   }
   
   static func saveNavigation(stack: [Task]) {
