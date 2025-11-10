@@ -29,7 +29,7 @@ struct Window: View {
           ForEach($subtasks, id: \.id) { $subtask in
             SubtaskView(
               onEnterSubtask: {
-                navigation.append(self.task!)
+                navigation.append(subtask)
                 enter(task: subtask)
               },
               onFinishEdit: {
@@ -105,11 +105,11 @@ struct Window: View {
     .toolbar {
       ToolbarItem(placement: .navigation) {
         Button {
-          if !navigation.isEmpty {
-            let parent = navigation.popLast()!
-            let last = self.task
+          if navigation.count > 1 {
+            let from = navigation.popLast()!
+            let parent = navigation.last!
             enter(task: parent)
-            selection = [last!.id]
+            selection = [from.id]
           }
         } label: {
           Image(systemName: "chevron.left")
