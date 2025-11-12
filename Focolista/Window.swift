@@ -16,6 +16,7 @@ struct Window: View {
   @State private var description: String = ""
   
   @Binding var navigation: [Task]
+  @Binding var clipboard: Clipboard
   
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
@@ -111,15 +112,35 @@ struct Window: View {
           let selecionadas = subtasks.filter { selection.contains($0.id) }
           let texto = selecionadas.map(\.title).joined(separator: "\n")
           print ("Selecionada a opção de copiar")
+          clipboard.tasks = selecionadas
           return [NSItemProvider(object: texto as NSString)]
         }
         .onCutCommand {
           let selecionadas = subtasks.filter { selection.contains($0.id) }
           let texto = selecionadas.map(\.title).joined(separator: "\n")
           print ("Selecionada a opção de recortar")
+          clipboard.from = task
+          clipboard.tasks = selecionadas
           return [NSItemProvider(object: texto as NSString)]
         }
         .onPasteCommand(of: [.text]) { itemProviders in
+          if !clipboard.isEmpty {
+            print ("Tarefas da área de transferência: \(clipboard.tasks.map(\.title).joined(separator: "\n"))")
+            var position = 0
+            if let indice = subtasks.firstIndex(where: { selection.contains($0.id) }) {
+                print("Primeiro índice encontrado: \(indice)")
+              position = indice
+            } else {
+                print("Nenhum item de A está presente em B.")
+              position = subtasks.count
+            }
+            task?.move(from: clipboard.from!, clipboard: clipboard.tasks, position: position)
+            subtasks.insert(contentsOf: clipboard.tasks, at: position)
+            selection.removeAll()
+            selection.formUnion(clipboard.tasks.map(\.id))
+            clipboard.clear()
+            return
+          }
           for provider in itemProviders {
             _ = provider.loadObject(ofClass: NSString.self) { object, _ in
               if let texto = object as? String {
@@ -171,6 +192,6 @@ struct Window: View {
   }
   private func move(from source: IndexSet, to destination: Int) {
     subtasks.move(fromOffsets: source, toOffset: destination)
-    self.task?.move(from: source, to: destination)
+    self.task?.changeOrder(from: source, to: destination)
   }
 }

@@ -81,7 +81,7 @@ class Task {
   func addSubtask(subtask: Task, position: Int) {
     subtasks.insert(subtask, at: position)
     Task.repository.addSubtask(task: self, subtask: subtask, position: position)
-    Task.repository.move(task: self, from: IndexSet(integer: subtasks.count), to: position)    
+    Task.repository.saveSubtasksOrder(task: self)    
   }
   
   func addSubtask(subtask: Task) {
@@ -89,9 +89,17 @@ class Task {
     Task.repository.addSubtask(task: self, subtask: subtask, position: subtasks.count)
   }
   
-  func move(from source: IndexSet, to destination: Int){
+  func changeOrder(from source: IndexSet, to destination: Int){
     subtasks.move(fromOffsets: source, toOffset: destination)
-    Task.repository.move(task: self, from: source, to: destination)
+    Task.repository.saveSubtasksOrder(task: self)
+  }
+  
+  func move(from: Task, clipboard: [Task], position: Int) {
+    subtasks.insert(contentsOf: clipboard, at: position)
+    from.subtasks.removeAll { task in
+      clipboard.contains{ $0.id == task.id }
+    }
+    Task.repository.move(from: from, destination: self, subtasks: clipboard)
   }
   
   func delete(subtask: Task) {
@@ -100,7 +108,7 @@ class Task {
       Task.repository.delete(parent: self, subtask: subtask)
       
       //Apenas para reposicionar as tarefas nos seus índices corretos.
-      Task.repository.move(task: self, from: IndexSet(integer: position), to: subtasks.count)
+      Task.repository.saveSubtasksOrder(task: self)
     }
   }
 

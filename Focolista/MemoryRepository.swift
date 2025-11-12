@@ -77,8 +77,14 @@ class MemoryRepository {
   }
   
 
-  func move(task: Task, from source: IndexSet, to destination: Int){
-    sqlite.move(task: task, from: source, to: destination)
+  func saveSubtasksOrder(task: Task){
+    sqlite.saveSubtasksOrder(task: task)
+  }
+  
+  func move(from: Task, destination: Task, subtasks: [Task]) {
+    sqlite.move(from: from, destination: destination, subtasks: subtasks)
+    sqlite.saveSubtasksOrder(task: from)
+    sqlite.saveSubtasksOrder(task: destination)
   }
   
   func delete(parent: Task, subtask: Task) {

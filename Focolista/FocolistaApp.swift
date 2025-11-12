@@ -10,10 +10,11 @@ import SwiftUI
 @main
 struct FocolistaApp: App {
   @State private var navigation : [Task] = Task.loadNavigation()
+  @State private var clipboard: Clipboard = Clipboard()
   
   var body: some Scene {
     WindowGroup {
-      Window(navigation: $navigation)
+      Window(navigation: $navigation, clipboard: $clipboard)
         .onWindowAvailable { win in
           guard let win = win else { return }
           //self.window = win

@@ -277,17 +277,17 @@ class SQLiteRepository {
   ///         por exemplo, através de `move(fromOffsets:toOffset:)` da API SwiftUI.
   ///         Ele apenas sincroniza a nova ordem com o banco de dados.
   ///
-  func move(task: Task, from source: IndexSet, to destination: Int) {
+  func saveSubtasksOrder(task: Task) {
     do {
       // Inicia uma transação para garantir atomicidade
       try db.transaction {
         let parentID = mapping.find(uuid: task.id)
         
         // Atualiza as posições de todas as subtarefas na tabela "edge"
-        for (newPosition, subtask) in task.subtasks.enumerated() {
+        for (position, subtask) in task.subtasks.enumerated() {
           let update = subtasksTable
             .filter(parentIdColumn == parentID && subtaskIdColumn == mapping.find(uuid: subtask.id))
-            .update(positionColumn <- newPosition + 1)
+            .update(positionColumn <- position + 1)
           try db.run(update)
         }
       }
@@ -296,6 +296,21 @@ class SQLiteRepository {
       
     } catch {
       print("Erro ao reordenar subtarefas da tarefa \(task.id): \(error)")
+    }
+  }
+  
+  func move(from: Task, destination: Task, subtasks: [Task]) {
+    do {
+      let subtasksIDs = subtasks.map { mapping.find(uuid: $0.id) }
+      let query = subtasksTable.filter(
+        parentIdColumn == mapping.find(uuid: from.id)
+        && subtasksIDs.contains(subtaskIdColumn)
+        && deletedAtColumn == nil
+      ).update(parentIdColumn <- mapping.find(uuid: destination.id))
+      try db.run(query)
+    }
+    catch {
+      print("Erro trocar tarefas de pai")
     }
   }
   
