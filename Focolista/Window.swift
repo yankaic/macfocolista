@@ -92,6 +92,21 @@ struct Window: View {
             }
             .listRowSeparator(.hidden)
         }
+        .onDeleteCommand {
+          // Filtra as subtarefas que estão selecionadas
+          let selecionadas = subtasks.filter { selection.contains($0.id) }
+          
+          // Para cada subtarefa selecionada, chama o método de remoção da Task principal
+          for subtask in selecionadas {
+            task!.delete(subtask: subtask)
+          }          
+          
+          // Remove as subtarefas também da lista local (para atualizar a UI)
+          subtasks.removeAll { selection.contains($0.id) }
+          
+          // Limpa a seleção após remover
+          selection.removeAll()
+        }
       }
     }
     .onAppear {

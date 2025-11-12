@@ -94,6 +94,17 @@ class Task {
     Task.repository.move(task: self, from: source, to: destination)
   }
   
+  func delete(subtask: Task) {
+    if let position = subtasks.firstIndex(where: { $0.id == subtask.id }) {
+      subtasks.remove(at: position)
+      Task.repository.delete(parent: self, subtask: subtask)
+      
+      //Apenas para reposicionar as tarefas nos seus índices corretos.
+      Task.repository.move(task: self, from: IndexSet(integer: position), to: subtasks.count)
+    }
+  }
+
+  
   func getCounterText() -> String{
     return "(\(subtasks.filter{ $0.isDone }.count)/\(subtasks.count))"
   }

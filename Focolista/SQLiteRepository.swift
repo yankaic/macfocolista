@@ -351,6 +351,21 @@ class SQLiteRepository {
     }
   }
   
+  func delete(parent: Task, subtask: Task) {
+    do {
+      let query = subtasksTable.filter(
+        parentIdColumn == mapping.find(uuid: parent.id) &&
+        subtaskIdColumn == mapping.find(uuid: subtask.id) &&
+        deletedAtColumn == nil
+      ).update(deletedAtColumn <- SQLiteRepository.getStringDate())
+      try db.run(query)
+      print("Tarefa \(subtask.title) apagada do banco")
+    }
+    catch {
+      print("Erro ao apagar: \(error)")
+    }
+  }
+  
   func updateDescription(task: Task){
     do {
       let update = tasksTable

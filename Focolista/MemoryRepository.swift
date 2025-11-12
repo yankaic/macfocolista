@@ -80,6 +80,10 @@ class MemoryRepository {
   func move(task: Task, from source: IndexSet, to destination: Int){
     sqlite.move(task: task, from: source, to: destination)
   }
+  
+  func delete(parent: Task, subtask: Task) {
+    sqlite.delete(parent: parent, subtask: subtask)
+  }
 
   func save(newtask task: Task) {
     if (!task.isPersisted) {
