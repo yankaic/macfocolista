@@ -99,13 +99,41 @@ struct Window: View {
           // Para cada subtarefa selecionada, chama o método de remoção da Task principal
           for subtask in selecionadas {
             task!.delete(subtask: subtask)
-          }          
+          }
           
           // Remove as subtarefas também da lista local (para atualizar a UI)
           subtasks.removeAll { selection.contains($0.id) }
           
           // Limpa a seleção após remover
           selection.removeAll()
+        }
+        .onCopyCommand {
+          let selecionadas = subtasks.filter { selection.contains($0.id) }
+          let texto = selecionadas.map(\.title).joined(separator: "\n")
+          print ("Selecionada a opção de copiar")
+          return [NSItemProvider(object: texto as NSString)]
+        }
+        .onCutCommand {
+          let selecionadas = subtasks.filter { selection.contains($0.id) }
+          let texto = selecionadas.map(\.title).joined(separator: "\n")
+          print ("Selecionada a opção de recortar")
+          return [NSItemProvider(object: texto as NSString)]
+        }
+        .onPasteCommand(of: [.text]) { itemProviders in
+          for provider in itemProviders {
+            _ = provider.loadObject(ofClass: NSString.self) { object, _ in
+              if let texto = object as? String {
+                DispatchQueue.main.async {
+                  let novas = texto
+                    .split(separator: "\n")
+                    .map { Task(title: String($0)) }
+                  subtasks.append(contentsOf: novas)
+                  selection.removeAll()
+                  selection.formUnion(novas.map(\.id))
+                }
+              }
+            }
+          }
         }
       }
     }
