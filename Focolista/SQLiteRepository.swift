@@ -49,7 +49,7 @@ class SQLiteRepository {
       try? fileManager.createDirectory(at: appFolder, withIntermediateDirectories: true)
     }
     
-    let dbPath = appFolder.appendingPathComponent("focolista.sqlite3").path
+    let dbPath = appFolder.appendingPathComponent("focolista.db").path
     
     do {
       db = try Connection(dbPath)
