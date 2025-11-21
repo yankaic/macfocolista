@@ -33,7 +33,7 @@ struct SubtaskView: View {
           }
         }
 
-      TextField("Task title", text: $title)
+      TextField("Título da tarefa", text: $title)
         .onSubmit {
           if task.title != title {
             task.title = title

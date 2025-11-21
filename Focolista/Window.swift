@@ -78,7 +78,7 @@ struct Window: View {
             selection = []
             editingTask = newTask.id
           } label: {
-            Label("Add task", systemImage: "plus")
+            Label("Adicionar nova tarefa", systemImage: "plus")
               .foregroundColor(.accentColor)
           }
           .buttonStyle(.plain)
