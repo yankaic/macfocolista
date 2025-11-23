@@ -79,12 +79,18 @@ class Task {
   }
   
   func addSubtask(subtask: Task, position: Int) {
+    if(!subtask.isPersisted) {
+      subtask.save()
+    }
     subtasks.insert(subtask, at: position)
     Task.repository.addSubtask(task: self, subtask: subtask, position: position)
     Task.repository.saveSubtasksOrder(task: self)    
   }
   
   func addSubtask(subtask: Task) {
+    if(!subtask.isPersisted) {
+      subtask.save()
+    }
     subtasks.append(subtask)
     Task.repository.addSubtask(task: self, subtask: subtask, position: subtasks.count)
   }

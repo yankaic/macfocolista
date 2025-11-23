@@ -72,7 +72,6 @@ class MemoryRepository {
   }
   
   func addSubtask(task: Task, subtask: Task, position: Int) {
-    save(newtask: subtask)
     sqlite.addSubtask(task: task, subtask: subtask, position: position)
   }
   

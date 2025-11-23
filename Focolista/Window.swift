@@ -112,6 +112,7 @@ struct Window: View {
           let selecionadas = subtasks.filter { selection.contains($0.id) }
           let texto = selecionadas.map(\.title).joined(separator: "\n")
           print ("Selecionada a opção de copiar")
+          clipboard.mode = .copy
           clipboard.tasks = selecionadas
           return [NSItemProvider(object: texto as NSString)]
         }
@@ -119,22 +120,44 @@ struct Window: View {
           let selecionadas = subtasks.filter { selection.contains($0.id) }
           let texto = selecionadas.map(\.title).joined(separator: "\n")
           print ("Selecionada a opção de recortar")
+          clipboard.mode = .cut
           clipboard.from = task
           clipboard.tasks = selecionadas
           return [NSItemProvider(object: texto as NSString)]
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .onCopyReferenceCommand)) { _ in
+          let selecionadas = subtasks.filter { selection.contains($0.id) }
+          clipboard.mode = .shortcut
+          clipboard.tasks = selecionadas
         }
         .onPasteCommand(of: [.text]) { itemProviders in
           if !clipboard.isEmpty {
             print ("Tarefas da área de transferência: \(clipboard.tasks.map(\.title).joined(separator: "\n"))")
             var position = 0
             if let indice = subtasks.firstIndex(where: { selection.contains($0.id) }) {
-                print("Primeiro índice encontrado: \(indice)")
+                print("Posição do local a colar: \(indice)")
               position = indice
             } else {
-                print("Nenhum item de A está presente em B.")
+                print("Não há seleção na tela. Colando no final das tarefas")
               position = subtasks.count
             }
-            task?.move(from: clipboard.from!, clipboard: clipboard.tasks, position: position)
+            switch clipboard.mode {
+            case .copy:
+              print("por enquanto não há a funcionalidade de copiar tarefas")
+              
+            case .cut:
+              task?.move(from: clipboard.from!, clipboard: clipboard.tasks, position: position)
+            
+            case .shortcut:
+              var index = position
+              clipboard.tasks.forEach { newSubtask in
+                task?.addSubtask(subtask: newSubtask, position: index)
+                index += 1
+              }
+              
+            case .none:
+              break
+            }
             subtasks.insert(contentsOf: clipboard.tasks, at: position)
             selection.removeAll()
             selection.formUnion(clipboard.tasks.map(\.id))

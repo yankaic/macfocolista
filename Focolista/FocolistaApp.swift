@@ -32,6 +32,16 @@ struct FocolistaApp: App {
             Task.saveNavigation(stack: navigation)
           }
         }
+    }.commands {
+      CommandGroup(before: .pasteboard) {
+        Button("Copiar referência") {
+          NotificationCenter.default.post(
+            name: .onCopyReferenceCommand,
+            object: nil
+          )
+        }
+        .keyboardShortcut("c", modifiers: [.option, .command])
+      }
     }
   }
 }
@@ -79,4 +89,9 @@ extension View {
     self.background(WindowAccessor(callback: callback))
   }
 }
+
+extension Notification.Name {
+  static let onCopyReferenceCommand = Notification.Name("onCopyReferenceCommand")
+}
+
 
