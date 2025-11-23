@@ -16,7 +16,8 @@ struct Window: View {
   @State private var description: String = ""
   
   @Binding var navigation: [Task]
-  @Binding var clipboard: Clipboard
+  @EnvironmentObject var clipboard: Clipboard
+  @State private var nsWindow: NSWindow?
   
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
@@ -126,9 +127,11 @@ struct Window: View {
           return [NSItemProvider(object: texto as NSString)]
         }
         .onReceive(NotificationCenter.default.publisher(for: .onCopyReferenceCommand)) { _ in
+          guard let win = nsWindow, win.isKeyWindow else { return }
           let selecionadas = subtasks.filter { selection.contains($0.id) }
           clipboard.mode = .shortcut
           clipboard.tasks = selecionadas
+          print ("modo atalho: \(selecionadas.map(\.title).joined(separator: ","))")
         }
         .onPasteCommand(of: [.text]) { itemProviders in
           if !clipboard.isEmpty {
@@ -186,6 +189,9 @@ struct Window: View {
       print("Método chamado ao iniciar a janela. É aqui que a tarefa deve ser carregada.")
       let task = navigation.last!
       enter(task: task)
+    }
+    .onWindowAvailable { win in
+      self.nsWindow = win
     }
     .background(Color(NSColor.controlBackgroundColor))
     .navigationTitle(windowTitle)

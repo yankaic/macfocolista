@@ -5,6 +5,8 @@
 //  Created by Yan Kaic on 12/11/25.
 //
 
+import Foundation
+
 enum ClipboardMode {
     case cut            // recortar
     case copy           // cópia normal (duplicar tarefas)
@@ -12,12 +14,12 @@ enum ClipboardMode {
     case none           // nada ativo
 }
 
-struct Clipboard {
-  var from: Task?
-  var tasks: [Task] = []
-  var mode: ClipboardMode = .none
+class Clipboard: ObservableObject {
+  @Published var from: Task?
+  @Published var tasks: [Task] = []
+  @Published var mode: ClipboardMode = .none
   
-  mutating func clear() {
+  func clear() {
     from = nil
     tasks.removeAll()
     mode = .none

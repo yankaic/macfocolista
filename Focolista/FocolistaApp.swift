@@ -14,24 +14,8 @@ struct FocolistaApp: App {
   
   var body: some Scene {
     WindowGroup {
-      Window(navigation: $navigation, clipboard: $clipboard)
-        .onWindowAvailable { win in
-          guard let win = win else { return }
-          //self.window = win
-          
-          // Carrega tamanho e posição anteriores
-          loadWindowFrame(for: win)
-          
-          // Observa o fechamento
-          NotificationCenter.default.addObserver(
-            forName: NSWindow.willCloseNotification,
-            object: win,
-            queue: .main
-          ) { _ in
-            saveWindowFrame(for: win)
-            Task.saveNavigation(stack: navigation)
-          }
-        }
+      WindowContainer()
+        .environmentObject(clipboard)
     }.commands {
       CommandGroup(before: .pasteboard) {
         Button("Copiar referência") {
