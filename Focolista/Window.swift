@@ -132,6 +132,10 @@ struct Window: View {
           clipboard.mode = .shortcut
           clipboard.tasks = selecionadas
           print ("modo atalho: \(selecionadas.map(\.title).joined(separator: ","))")
+          
+          let pasteboard = NSPasteboard.general
+          pasteboard.clearContents()
+          pasteboard.setString(selecionadas.map(\.title).joined(separator: "\n"), forType: .string)
         }
         .onPasteCommand(of: [.text]) { itemProviders in
           if !clipboard.isEmpty {
