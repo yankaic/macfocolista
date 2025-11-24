@@ -150,7 +150,13 @@ struct Window: View {
             }
             switch clipboard.mode {
             case .copy:
-              print("por enquanto não há a funcionalidade de copiar tarefas")
+              print("Colando clones")
+              clipboard.tasks = Task.createClone(tasks: clipboard.tasks)
+              var index = position
+              clipboard.tasks.forEach { newSubtask in
+                task?.addSubtask(subtask: newSubtask, position: index)
+                index += 1
+              }
               
             case .cut:
               task?.move(from: clipboard.from!, clipboard: clipboard.tasks, position: position)

@@ -59,6 +59,15 @@ class Task {
     self.isPersisted = true
   }
   
+  init( title: String, description: String, isDone: Bool){
+    self.id = UUID()
+    self.title = title
+    self.description = description
+    self.isDone = isDone
+    self.subtasks = []
+    self.isPersisted = false
+  }
+  
   func save() {
     print(id.uuidString)
     Task.repository.save(newtask: self)
@@ -76,6 +85,26 @@ class Task {
   func loadSubtasks(){
     print("Carregando subtarefas")
     Task.repository.loadSubtasksLevel2(task: self)
+  }
+  
+  static func createClone(tasks: [Task]) -> [Task] {
+    clones.removeAll()
+    return tasks.map { $0.clone() }
+  }
+  
+  private static var clones: [UUID: Task] = [:]
+  private func clone() -> Task {
+    if let cloned = Task.clones[id] {
+      return cloned
+    }
+    let cloned = Task(title: title, description: description, isDone: isDone)
+    cloned.save()
+    Task.clones[id] = cloned
+    let clonedSubtasks = subtasks.map { $0.clone() }
+    clonedSubtasks.forEach { clonedSubtask in
+      cloned.addSubtask(subtask: clonedSubtask)
+    }
+    return cloned
   }
   
   func addSubtask(subtask: Task, position: Int) {
