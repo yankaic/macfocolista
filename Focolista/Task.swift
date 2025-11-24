@@ -100,6 +100,7 @@ class Task {
     let cloned = Task(title: title, description: description, isDone: isDone)
     cloned.save()
     Task.clones[id] = cloned
+    loadSubtasks()
     let clonedSubtasks = subtasks.map { $0.clone() }
     clonedSubtasks.forEach { clonedSubtask in
       cloned.addSubtask(subtask: clonedSubtask)
