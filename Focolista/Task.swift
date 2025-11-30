@@ -22,6 +22,7 @@ class Task {
   private var waitingSaveTitle: Bool = false
   
   private static var repository: MemoryRepository = MemoryRepository()
+  private static var lastNavigation: [Task] = []
   
   init() {
     self.id = UUID()
@@ -69,13 +70,16 @@ class Task {
   }
   
   func save() {
-    print(id.uuidString)
+    //print(id.uuidString)
     Task.repository.save(newtask: self)
   }
 
   static func loadNavigation() -> [Task] {
-    print("Carregando pilha de navegação...")
-    return Task.repository.loadNavigation()
+    if lastNavigation.isEmpty {
+      print("Carregando pilha de navegação...")
+      lastNavigation = Task.repository.loadNavigation()
+    }
+    return lastNavigation
   }
   
   static func saveNavigation(stack: [Task]) {
@@ -83,7 +87,6 @@ class Task {
   }
   
   func loadSubtasks(){
-    print("Carregando subtarefas")
     Task.repository.loadSubtasksLevel2(task: self)
   }
   

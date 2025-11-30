@@ -14,19 +14,16 @@ class MemoryRepository {
     print("Inicializando o Memory Repository")
   }
   
-  /// Atualiza a lista de subtarefas de uma tarefa, mesclando com o cache existente.
-  ///
-  /// - Para cada subtarefa:
-  ///   - Se já estiver no cache, usa a instância em cache (mantendo dados carregados).
-  ///   - Se não estiver, adiciona ao cache e inclui na lista.
-  /// A lista final sempre dá preferência às tarefas em cache.
-  private func configureSubtasks(for task: Task) {
-    task.subtasks = task.subtasks.map { subtask in
-      if let cached = cache[subtask.id] {
+
+  private func findCaches(for tasks: [Task]) -> [Task] {
+    return tasks.map { task in
+      if let cached = cache[task.id] {
+        print("cached: \(task.title)")
         return cached
       } else {
-        cache[subtask.id] = subtask
-        return subtask
+        cache[task.id] = task
+        print("load: \(task.title)")
+        return task
       }
     }
   }
@@ -37,12 +34,11 @@ class MemoryRepository {
   func load(ids: [Int]) -> [Task] {
     
     // Atualiza as tarefas a partir do banco de dados
-    let tasks = sqlite.load(ids: ids)
-    sqlite.loadSubtasks(tasks: tasks)
+    var tasks = sqlite.load(ids: ids)
+    tasks = findCaches(for: tasks)
         
     tasks.forEach { task in
-      cache[task.id] = task
-      configureSubtasks(for: task)
+      loadSubtasks(task: task)
     }
     return tasks
   }
@@ -50,7 +46,8 @@ class MemoryRepository {
   func loadSubtasks(task: Task) {
     guard !task.isSubtasksLoaded else { return }
     sqlite.loadSubtasks(tasks: [task])
-    configureSubtasks(for: task)
+    task.subtasks = findCaches(for: task.subtasks)
+    task.isSubtasksLoaded = true
   }
   
   func loadSubtasksLevel2(task: Task) {
@@ -61,13 +58,13 @@ class MemoryRepository {
     let subtasks : [Task] = task.subtasks
       .filter { return !$0.isSubtasksLoaded }
     
-    print("quantidade de subtarefas \(subtasks.count)")
+    //print("quantidade de subtarefas \(subtasks.count)")
     
     if subtasks.isEmpty { return }
     
     sqlite.loadSubtasks(tasks: subtasks)
     subtasks.forEach { subtask in
-      configureSubtasks(for: subtask)
+      subtask.subtasks = findCaches(for: subtask.subtasks)
     }
   }
   
@@ -107,7 +104,7 @@ class MemoryRepository {
   
   func updateDescription(task: Task){
     sqlite.updateDescription(task: task)
-    print("Salvando descrição às: " + DateFormatter().string(from: Date()))
+    //print("Salvando descrição às: " + DateFormatter().string(from: Date()))
   }
   
   func map(uuid: UUID, int: Int){

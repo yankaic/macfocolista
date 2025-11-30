@@ -53,9 +53,9 @@ class SQLiteRepository {
     
     do {
       db = try Connection(dbPath)
-      db.trace { sql in
-        print("SQL Executada: \(sql)")
-      }
+      //db.trace { sql in
+        //print("SQL Executada: \(sql)")
+      //}
       //try db.run(tasksTable.drop(ifExists: true))
       try createTableIfNeeded()
     } catch {
@@ -177,6 +177,7 @@ class SQLiteRepository {
         task.description = row[descriptionColumn] ?? ""
         task.isDone = row[doneAtColumn] != nil
         task.isPersisted = true
+        //print("load: \(task.title)")
       }
     } catch {
       print("Erro ao atualizar lista de tarefas: \(error)")
@@ -217,6 +218,7 @@ class SQLiteRepository {
         subtask.description = row[tasksTable[descriptionColumn]] ?? ""
         subtask.isDone = row[tasksTable[doneAtColumn]] != nil
         subtask.isPersisted = true
+        //print("load: \(subtask.title)")
         
         task.subtasks.append(subtask)
       }
@@ -236,7 +238,7 @@ class SQLiteRepository {
         updatedAtColumn <- SQLiteRepository.getStringDate()
       )
       try db.run(insert)
-      print("Criando nova tarefa: \(task.title)")
+      print("create: \(task.title)")
       task.isPersisted = true
     } catch {
       print("Erro ao inserir: \(error)")
@@ -255,7 +257,7 @@ class SQLiteRepository {
         deletedAtColumn <- nil
       )
       try db.run(insert)
-      print("Criando nova tarefa: \(task.title)")
+      print("subtask: \(task.title) → \(subtask.title)")
       task.isPersisted = true
     } catch {
       print("Erro ao inserir: \(error)")
@@ -289,10 +291,9 @@ class SQLiteRepository {
             .filter(parentIdColumn == parentID && subtaskIdColumn == mapping.find(uuid: subtask.id))
             .update(positionColumn <- position + 1)
           try db.run(update)
+          print("order: \(task.title) → \(position + 1) → \(subtask.title)")
         }
       }
-      
-      print("Reordenação concluída para a tarefa \(task.id)")
       
     } catch {
       print("Erro ao reordenar subtarefas da tarefa \(task.id): \(error)")
@@ -308,6 +309,7 @@ class SQLiteRepository {
         && deletedAtColumn == nil
       ).update(parentIdColumn <- mapping.find(uuid: destination.id))
       try db.run(query)
+      print("from: \(from.title), to: \(destination.title), subtasks: \(subtasks.map(\.title).joined(separator: ", "))")
     }
     catch {
       print("Erro trocar tarefas de pai")
@@ -344,7 +346,7 @@ class SQLiteRepository {
         .update(titleColumn <- task.title,
                 updatedAtColumn <- SQLiteRepository.getStringDate())
       try db.run(update)
-      print("Tarefa renomeada para: \(task.title)")
+      print("rename: \(task.title)")
     }
     catch {
       print("Erro ao atualizar título: \(error)")
@@ -359,7 +361,7 @@ class SQLiteRepository {
         .update(doneAtColumn <- doneAt,
                 updatedAtColumn <- SQLiteRepository.getStringDate())
       try db.run(update)
-      print("Marcação chamada pelo banco")
+      print("mark: \(task.title)")
     }
     catch {
       print("Erro ao atualizar marcação: \(error)")
@@ -374,7 +376,7 @@ class SQLiteRepository {
         deletedAtColumn == nil
       ).update(deletedAtColumn <- SQLiteRepository.getStringDate())
       try db.run(query)
-      print("Tarefa \(subtask.title) apagada do banco")
+      print("Delete \(subtask.title)")
     }
     catch {
       print("Erro ao apagar: \(error)")

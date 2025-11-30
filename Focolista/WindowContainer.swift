@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct WindowContainer: View {
-  @State private var navigation: [Task] = Task.loadNavigation()
+  @State private var navigation: [Task] = []
   @EnvironmentObject var clipboard: Clipboard
 
   var body: some View {

@@ -195,8 +195,8 @@ struct Window: View {
       }
     }
     .onAppear {
-      print(Task(title: "Tarefa vazia só para iniciar").title)
-      print("Método chamado ao iniciar a janela. É aqui que a tarefa deve ser carregada.")
+      print("Iniciando janela")
+      navigation = Task.loadNavigation()
       let task = navigation.last!
       enter(task: task)
     }
@@ -223,7 +223,7 @@ struct Window: View {
   
   private func enter(task: Task) {
     self.task = task
-    print("Tarefa carregada: " + task.title)
+    print("Focus: " + task.title)
     windowTitle = task.title
     description = task.description
     task.loadSubtasks()

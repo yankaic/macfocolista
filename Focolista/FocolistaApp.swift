@@ -9,7 +9,6 @@ import SwiftUI
 
 @main
 struct FocolistaApp: App {
-  @State private var navigation : [Task] = Task.loadNavigation()
   @State private var clipboard: Clipboard = Clipboard()
   
   var body: some Scene {
