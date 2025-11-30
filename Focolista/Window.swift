@@ -184,6 +184,9 @@ struct Window: View {
                   let novas = texto
                     .split(separator: "\n")
                     .map { Task(title: String($0)) }
+                  novas.forEach { newSubtask in
+                    task?.addSubtask(subtask: newSubtask)
+                  }
                   subtasks.append(contentsOf: novas)
                   selection.removeAll()
                   selection.formUnion(novas.map(\.id))
