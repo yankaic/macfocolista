@@ -76,7 +76,7 @@ class Task {
 
   static func loadNavigation() -> [Task] {
     if lastNavigation.isEmpty {
-      print("Carregando pilha de navegação...")
+      print("Load navigation")
       lastNavigation = Task.repository.loadNavigation()
     }
     return lastNavigation
@@ -84,6 +84,7 @@ class Task {
   
   static func saveNavigation(stack: [Task]) {
     Task.repository.saveNavigation(stack: stack)
+    lastNavigation = stack
   }
   
   func loadSubtasks(){

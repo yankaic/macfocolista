@@ -13,7 +13,7 @@ struct FocolistaApp: App {
   
   var body: some Scene {
     WindowGroup {
-      WindowContainer()
+      Window()
         .environmentObject(clipboard)
     }.commands {
       CommandGroup(before: .pasteboard) {
@@ -37,7 +37,6 @@ func saveWindowFrame(for window: NSWindow) {
     "width": frame.size.width,
     "height": frame.size.height
   ]
-  print("Fechando programa e salvando informações")
   UserDefaults.standard.set(dict, forKey: "janelaPrincipal.frame")
 }
 

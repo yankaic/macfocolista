@@ -15,7 +15,7 @@ struct Window: View {
   @State private var windowTitle: String = "Focolista"
   @State private var description: String = ""
   
-  @Binding var navigation: [Task]
+  @State private var navigation: [Task] = []
   @EnvironmentObject var clipboard: Clipboard
   @State private var nsWindow: NSWindow?
   
@@ -204,7 +204,19 @@ struct Window: View {
       enter(task: task)
     }
     .onWindowAvailable { win in
+      guard let win = win else { return }
       self.nsWindow = win
+      
+      loadWindowFrame(for: win)
+      
+      NotificationCenter.default.addObserver(
+        forName: NSWindow.willCloseNotification,
+        object: win,
+        queue: .main
+      ) { _ in
+        saveWindowFrame(for: win)
+        Task.saveNavigation(stack: navigation)
+      }
     }
     .background(Color(NSColor.controlBackgroundColor))
     .navigationTitle(windowTitle)
