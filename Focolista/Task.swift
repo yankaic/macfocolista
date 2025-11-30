@@ -184,4 +184,10 @@ class Task {
     }
   }
   
+  func tooltip() -> String {
+    return description.isEmpty ?
+    title
+    : "\(title)\n\n\(description)"
+  }
+  
 }

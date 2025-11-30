@@ -70,6 +70,7 @@ struct Window: View {
               task: $subtask
             )
             .focused($editingTask, equals: subtask.id)
+            .help("\(subtask.title)\n\n\(subtask.description)")
           }
           .onMove(perform: move)
           
