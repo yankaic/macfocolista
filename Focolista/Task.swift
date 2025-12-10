@@ -101,7 +101,7 @@ class Task {
     if let cloned = Task.clones[id] {
       return cloned
     }
-    let cloned = Task(title: title, description: description, isDone: isDone)
+    let cloned = Task(title: title, description: description, isDone: false)
     cloned.save()
     Task.clones[id] = cloned
     loadSubtasks()
