@@ -409,8 +409,8 @@ class SQLiteRepository {
             idColumn <- position + 1
           )
           try db.run(update)
-          print("Conseguiu gravar a navegação")
-        }
+        }        
+        print("Save navigation")
       }
     }
     catch {
