@@ -11,6 +11,7 @@ struct NotesEditor: View {
       //Texto invisível apenas para cálculo
       Text(text)
         .foregroundColor(.clear)
+        .font(.system(size: 14))
       //.foregroundColor(.red)
         .padding(.horizontal, 0)
         .padding(.bottom, paddingTextEditor)
@@ -36,11 +37,12 @@ struct NotesEditor: View {
           .opacity(0.35)
           .padding(.horizontal, 0)
           .padding(.bottom, paddingTextEditor)
+          .font(.system(size: 14))
       }
       
       // Visible text editor
       TextEditor(text: $text)
-        .font(.body)
+        .font(.system(size: 14))
         .opacity(0.65)
         .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
         .scrollDisabled(true)

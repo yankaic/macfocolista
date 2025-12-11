@@ -46,6 +46,7 @@ struct SubtaskView: View {
           onEnterKeyPressed()
         }
         .focused($isFocused)
+        .font(.system(size: 14))
         .onChange(of: isFocused) {
           if isFocused {
             onStartEdit()

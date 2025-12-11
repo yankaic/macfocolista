@@ -82,6 +82,7 @@ struct Window: View {
           } label: {
             Label("Adicionar nova tarefa", systemImage: "plus")
               .foregroundColor(.accentColor)
+              .font(.system(size: 14))
           }
           .buttonStyle(.plain)
           .padding(.top, 8)
