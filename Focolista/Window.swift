@@ -208,7 +208,7 @@ struct Window: View {
     .onWindowAvailable { win in
       guard let win = win else { return }
       self.nsWindow = win
-      win.level = .floating
+      //win.level = .floating
       
       loadWindowFrame(for: win)
       
