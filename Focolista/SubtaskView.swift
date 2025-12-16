@@ -72,10 +72,10 @@ struct SubtaskView: View {
           counter = task.getCounterText()
           showCounter = !task.subtasks.isEmpty
 
-          task.onMark(uuid: windowUUID, handler: { value in
+          task.onMark[windowUUID] = { value in
             isDone = value
             print("Marcando por evento")
-          })
+          }
         }
 
       Spacer()

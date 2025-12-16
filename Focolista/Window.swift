@@ -220,7 +220,7 @@ struct Window: View {
         queue: .main
       ) { _ in
         subtasks.forEach { subtask in
-          subtask.removeMarkHandler(uuid: windowUUID)
+          subtask.onMark.removeValue(forKey: windowUUID)
         }
         saveWindowFrame(for: win)
         Task.saveNavigation(stack: navigation)
@@ -246,7 +246,7 @@ struct Window: View {
   
   private func enter(task: Task) {
     subtasks.forEach { subtask in
-      subtask.removeMarkHandler(uuid: windowUUID)
+      subtask.onMark.removeValue(forKey: windowUUID)
     }
     self.task = task
     print("Focus: " + task.title)
