@@ -5,6 +5,7 @@ struct NotesEditor: View {
   @Binding var task: Task?
   let paddingTextEditor: CGFloat = 8
   @State private var dynamicHeight: CGFloat = 0  // initial estimated height for a single line
+  @FocusState private var isFocused: Bool
   
   var body: some View {
     ZStack(alignment: .topLeading) {
@@ -49,6 +50,7 @@ struct NotesEditor: View {
         .textEditorStyle(.plain)
         .padding(.horizontal, -5)
         .padding(.bottom, paddingTextEditor * -1)
+        .focused($isFocused)
     }
     .background(Color(NSColor.controlBackgroundColor))
   }

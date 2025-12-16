@@ -20,6 +20,8 @@ struct Window: View {
   @State private var nsWindow: NSWindow?
   @State private var windowUUID: UUID = UUID()
   
+  @State private var showNotes: Bool = false
+  
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
   
@@ -27,8 +29,11 @@ struct Window: View {
     NavigationStack {
       VStack(spacing: 0) {
         List(selection: $selection) {
-          NotesEditor(text: $description, task: $task)
-            .listRowSeparator(.hidden) //  remove o separador abaixo
+          if showNotes {
+            NotesEditor(text: $description, task: $task)
+              .listRowSeparator(.hidden) //  remove o separador abaixo
+            .focused($editingTask, equals: windowUUID)
+          }
           ForEach($subtasks, id: \.id) { $subtask in
             SubtaskView(
               onEnterSubtask: {
@@ -241,6 +246,17 @@ struct Window: View {
           Image(systemName: "chevron.left")
         }
       }
+      if (!showNotes){
+        ToolbarItem(placement: .primaryAction) {
+          Button {
+            self.showNotes = true
+            self.editingTask = windowUUID
+          } label: {
+            Image(systemName: "square.and.pencil")
+          }
+          .help("Adicionar descrição")
+        }
+      }
     }
   }
   
@@ -261,6 +277,7 @@ struct Window: View {
         tasksExited.contains{ $0.id == subtask.id }
       }
     }
+    self.showNotes = !task.description.isEmpty
   }
   private func move(from source: IndexSet, to destination: Int) {
     subtasks.move(fromOffsets: source, toOffset: destination)
