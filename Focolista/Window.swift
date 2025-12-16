@@ -248,12 +248,19 @@ struct Window: View {
     subtasks.forEach { subtask in
       subtask.onMark.removeValue(forKey: windowUUID)
     }
+    self.task?.onDelete.removeValue(forKey: windowUUID)
     self.task = task
     print("Focus: " + task.title)
     windowTitle = task.title
     description = task.description
     task.loadSubtasks()
     subtasks = task.subtasks
+    
+    task.onDelete[windowUUID] = { tasksExited in
+      subtasks.removeAll { subtask in
+        tasksExited.contains{ $0.id == subtask.id }
+      }
+    }
   }
   private func move(from source: IndexSet, to destination: Int) {
     subtasks.move(fromOffsets: source, toOffset: destination)

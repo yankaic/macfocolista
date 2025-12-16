@@ -17,6 +17,7 @@ class Task {
   var isSubtasksLoaded: Bool = false
   
   var onMark: [UUID: (Bool) -> Void] = [:]
+  var onDelete: [UUID: ([Task]) -> Void] = [:]
   
   private var waitingSaveDescription: Bool = false
   private var waitingSaveTitle: Bool = false
@@ -140,6 +141,10 @@ class Task {
       clipboard.contains{ $0.id == task.id }
     }
     Task.repository.move(from: from, destination: self, subtasks: clipboard)
+    
+    for (uuid, handle) in from.onDelete {
+      handle(clipboard)
+    }
   }
   
   func delete(subtask: Task) {
