@@ -142,7 +142,7 @@ class Task {
     }
     Task.repository.move(from: from, destination: self, subtasks: clipboard)
     
-    for (uuid, handle) in from.onDelete {
+    for (_, handle) in from.onDelete {
       handle(clipboard)
     }
   }
