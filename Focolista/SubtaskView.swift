@@ -14,6 +14,7 @@ struct SubtaskView: View {
   var onStartEdit: () -> Void
   var onCommitNewTask: () -> Void
   var onToggleComplete: (Bool) -> Void
+  var windowUUID: UUID
 
   @Binding var task: Task
   @State private var title: String = ""
@@ -29,7 +30,7 @@ struct SubtaskView: View {
           //onToggleComplete(task.isDone)
           if isDone != task.isDone {
             task.isDone = isDone
-            task.saveMark()
+            task.saveMark(windowUUID: windowUUID)
           }
         }
 
@@ -71,7 +72,7 @@ struct SubtaskView: View {
           counter = task.getCounterText()
           showCounter = !task.subtasks.isEmpty
 
-          task.onMark.append( { value in
+          task.onMark(uuid: windowUUID, handler: { value in
             isDone = value
             print("Marcando por evento")
           })

@@ -13,8 +13,6 @@ class Task {
   var isDone: Bool
   var subtasks: [Task]
   
-  var onMark: [(Bool) -> Void] = []
-  
   var isPersisted: Bool
   var isSubtasksLoaded: Bool = false
   
@@ -167,11 +165,25 @@ class Task {
     }
   }
   
-  func saveMark() {
+  var markHandlers: [UUID: (Bool) -> Void] = [:]
+  
+  func saveMark(windowUUID: UUID) {
     Task.repository.updateDone(task: self)
-    for handle in onMark {
+    print("Marcando pelo usuário")
+    for (uuid, handle) in markHandlers {
+      if uuid == windowUUID {
+        continue
+      }
       handle(self.isDone)
     }
+  }
+  
+  func onMark(uuid: UUID, handler: @escaping (Bool) -> Void) {
+    markHandlers[uuid] = handler
+  }
+  
+  func removeMarkHandler(uuid: UUID){
+    markHandlers.removeValue(forKey: uuid)
   }
   
   func saveDescription() {

@@ -18,6 +18,7 @@ struct Window: View {
   @State private var navigation: [Task] = []
   @EnvironmentObject var clipboard: Clipboard
   @State private var nsWindow: NSWindow?
+  @State private var windowUUID: UUID = UUID()
   
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
@@ -67,6 +68,7 @@ struct Window: View {
               onToggleComplete: { newCompletedValue in
                 //subtask.saveMark()
               },
+              windowUUID: self.windowUUID,
               task: $subtask
             )
             .focused($editingTask, equals: subtask.id)
@@ -217,6 +219,9 @@ struct Window: View {
         object: win,
         queue: .main
       ) { _ in
+        subtasks.forEach { subtask in
+          subtask.removeMarkHandler(uuid: windowUUID)
+        }
         saveWindowFrame(for: win)
         Task.saveNavigation(stack: navigation)
       }
@@ -240,6 +245,9 @@ struct Window: View {
   }
   
   private func enter(task: Task) {
+    subtasks.forEach { subtask in
+      subtask.removeMarkHandler(uuid: windowUUID)
+    }
     self.task = task
     print("Focus: " + task.title)
     windowTitle = task.title
