@@ -27,10 +27,10 @@ struct SubtaskView: View {
     HStack {
       Toggle("", isOn: $isDone)
         .onChange(of: isDone) {
-          //onToggleComplete(task.isDone)
           if isDone != task.isDone {
             task.isDone = isDone
             task.saveMark(windowUUID: windowUUID)
+            onToggleComplete(task.isDone)
           }
         }
 

@@ -53,7 +53,7 @@ struct Window: View {
                 editingTask = newTask.id
               },
               onStartEdit: {
-                selection = []
+                selection.removeAll()
               },
               onCommitNewTask: {
                 if let position = subtasks.firstIndex(where: { $0.id == subtask.id }) {
@@ -66,7 +66,7 @@ struct Window: View {
                 }
               },
               onToggleComplete: { newCompletedValue in
-                //subtask.saveMark()
+                selection.removeAll()
               },
               windowUUID: self.windowUUID,
               task: $subtask
