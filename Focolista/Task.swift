@@ -83,6 +83,10 @@ class Task {
     return lastNavigation
   }
   
+  static func saveNavigationInMemory(stack: [Task]) {
+    lastNavigation = stack
+  }
+  
   static func saveNavigation(stack: [Task]) {
     Task.repository.saveNavigation(stack: stack)
     lastNavigation = stack

@@ -240,6 +240,7 @@ struct Window: View {
     }
     .background(Color(NSColor.controlBackgroundColor))
     .navigationTitle(windowTitle)
+    .toolbarBackground(.windowBackground, for: .windowToolbar)
     .toolbar {
       ToolbarItem(placement: .navigation) {
         Button {
@@ -290,6 +291,7 @@ struct Window: View {
       }
     }
     self.showNotes = !task.description.isEmpty
+    Task.saveNavigationInMemory(stack: self.navigation)
   }
   private func move(from source: IndexSet, to destination: Int) {
     subtasks.move(fromOffsets: source, toOffset: destination)
