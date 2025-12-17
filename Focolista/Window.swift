@@ -183,6 +183,14 @@ struct Window: View {
                 }
                 
               case .cut:
+                let blockPaste = clipboard.tasks.contains { a in
+                  navigation.contains { b in
+                        a.id == b.id
+                    }
+                }
+                if blockPaste {
+                    return
+                }
                 task?.move(from: clipboard.from!, clipboard: clipboard.tasks, position: position)
                 
               case .shortcut:

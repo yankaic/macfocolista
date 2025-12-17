@@ -6,7 +6,7 @@
 //
 import Foundation
 
-class Task {
+class Task: Equatable{
   let id: UUID
   var title: String
   var description: String
@@ -201,6 +201,10 @@ class Task {
     return description.isEmpty ?
     title
     : "\(title)\n\n\(description)"
+  }
+  
+  static func == (a: Task, b: Task) -> Bool {
+    a.id == b.id
   }
   
 }
