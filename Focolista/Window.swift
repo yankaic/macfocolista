@@ -22,6 +22,7 @@ struct Window: View {
   
   @State private var showNotes: Bool = false
   @State private var scrollTarget: UUID?
+  @State private var lastTask: UUID?
   
   // Focus: keeps track of the task currently being edited
   @FocusState private var editingTask: UUID?
@@ -57,7 +58,8 @@ struct Window: View {
                     subtasks.append(newTask)
                   }
                   selection = []
-                  editingTask = newTask.id
+                  editingTask = newTask.id                  
+                  lastTask = newTask.id
                 },
                 onStartEdit: {
                   selection.removeAll()
@@ -108,6 +110,12 @@ struct Window: View {
           .onChange(of: scrollTarget) { _, target in
             guard let target else { return }
             proxy.scrollTo(target, anchor: .center)
+          }
+          .onChange(of: lastTask) { _, target in
+            guard let target else { return }
+            withAnimation {
+              proxy.scrollTo(target, anchor: .center)
+            }
           }
           .onDeleteCommand {
             // Filtra as subtarefas que estão selecionadas
