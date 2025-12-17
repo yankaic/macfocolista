@@ -153,6 +153,7 @@ struct Window: View {
             guard let win = nsWindow, win.isKeyWindow else { return }
             let selecionadas = subtasks.filter { selection.contains($0.id) }
             clipboard.mode = .shortcut
+            clipboard.from = task
             clipboard.tasks = selecionadas
             print ("modo atalho: \(selecionadas.map(\.title).joined(separator: ","))")
             
@@ -185,6 +186,9 @@ struct Window: View {
                 task?.move(from: clipboard.from!, clipboard: clipboard.tasks, position: position)
                 
               case .shortcut:
+                if task?.id == clipboard.from?.id {
+                  return
+                }
                 var index = position
                 clipboard.tasks.forEach { newSubtask in
                   task?.addSubtask(subtask: newSubtask, position: index)
