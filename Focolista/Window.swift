@@ -191,6 +191,7 @@ struct Window: View {
                 if blockPaste {
                     return
                 }
+                position -= task!.subtasks.prefix(position).filter { clipboard.tasks.contains($0) }.count
                 task?.move(from: clipboard.from!, clipboard: clipboard.tasks, position: position)
                 
               case .shortcut:

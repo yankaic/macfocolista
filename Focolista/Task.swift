@@ -140,10 +140,10 @@ class Task: Equatable{
   }
   
   func move(from: Task, clipboard: [Task], position: Int) {
-    subtasks.insert(contentsOf: clipboard, at: position)
     from.subtasks.removeAll { task in
-      clipboard.contains{ $0.id == task.id }
+      clipboard.contains(task)
     }
+    subtasks.insert(contentsOf: clipboard, at: position)
     Task.repository.move(from: from, destination: self, subtasks: clipboard)
     
     for (_, handle) in from.onDelete {
