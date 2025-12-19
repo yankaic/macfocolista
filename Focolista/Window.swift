@@ -233,6 +233,7 @@ struct Window: View {
         }
       }
     }
+    .padding(.top, -5)
     .onAppear {
       print("Iniciando janela")
       navigation = Task.loadNavigation()

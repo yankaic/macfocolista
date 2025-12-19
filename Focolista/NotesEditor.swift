@@ -52,6 +52,7 @@ struct NotesEditor: View {
         .padding(.bottom, paddingTextEditor * -1)
         .focused($isFocused)
     }
+    .padding(.top, 5)
     .background(Color(NSColor.controlBackgroundColor))
   }
 }
