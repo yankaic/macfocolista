@@ -207,6 +207,9 @@ struct Window: View {
               case .none:
                 break
               }
+              if !clipboard.tasks.isEmpty {
+                scrollTarget = clipboard.tasks[0].id
+              }
               subtasks.insert(contentsOf: clipboard.tasks, at: position)
               selection.removeAll()
               selection.formUnion(clipboard.tasks.map(\.id))
