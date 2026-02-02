@@ -25,6 +25,12 @@ struct FocolistaApp: App {
         }
         .keyboardShortcut("c", modifiers: [.option, .command])
       }
+      CommandMenu("Navegar") {
+        Button("Voltar") {
+          NotificationCenter.default.post(name: .onBackCommand, object: nil)
+        }
+        .keyboardShortcut("[", modifiers: [.command])
+      }
     }
   }
 }
@@ -74,6 +80,7 @@ extension View {
 
 extension Notification.Name {
   static let onCopyReferenceCommand = Notification.Name("onCopyReferenceCommand")
+  static let onBackCommand = Notification.Name("onBackCommand")
 }
 
 

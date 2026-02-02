@@ -161,6 +161,10 @@ struct Window: View {
             pasteboard.clearContents()
             pasteboard.setString(selecionadas.map(\.title).joined(separator: "\n"), forType: .string)
           }
+          .onReceive(NotificationCenter.default.publisher(for: .onBackCommand)) { _ in
+            guard let win = nsWindow, win.isKeyWindow else { return }
+            backToParent()
+          }
           .onPasteCommand(of: [.text]) { itemProviders in
             if !clipboard.isEmpty {
               print ("Tarefas da área de transferência: \(clipboard.tasks.map(\.title).joined(separator: "\n"))")
@@ -269,13 +273,7 @@ struct Window: View {
     .toolbar {
       ToolbarItem(placement: .navigation) {
         Button {
-          if navigation.count > 1 {
-            let from = navigation.popLast()!
-            let parent = navigation.last!
-            enter(task: parent)
-            selection = [from.id]
-            scrollTarget = from.id
-          }
+          backToParent()
         } label: {
           Image(systemName: "chevron.left")
         }
@@ -291,6 +289,16 @@ struct Window: View {
           .help("Adicionar descrição")
         }
       }
+    }
+  }
+  
+  private func backToParent() {
+    if navigation.count > 1 {
+      let from = navigation.popLast()!
+      let parent = navigation.last!
+      enter(task: parent)
+      selection = [from.id]
+      scrollTarget = from.id
     }
   }
   
