@@ -18,7 +18,7 @@ struct SubtaskView: View {
 
   @Binding var task: Task
   @State private var title: String = ""
-  @State private var counter: String = "(0/0)"
+  @State private var counter: String = "0/0"
   @State private var showCounter: Bool = false
   @State private var isDone: Bool = false
   @FocusState private var isFocused: Bool
@@ -77,13 +77,14 @@ struct SubtaskView: View {
             print("Marcando por evento")
           }
         }
-
-      Spacer()
       
       if showCounter {
         Text(counter)
           .opacity(0.35)
-      }      
+          .onTapGesture {
+            onEnterSubtask()
+          }
+      }
 
       Button(action: {
         onEnterSubtask()

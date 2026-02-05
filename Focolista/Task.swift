@@ -163,7 +163,7 @@ class Task: Equatable{
 
   
   func getCounterText() -> String{
-    return "(\(subtasks.filter{ $0.isDone }.count)/\(subtasks.count))"
+    return "\(subtasks.filter{ $0.isDone }.count)/\(subtasks.count)"
   }
   
   func saveTitle() {
